@@ -11,16 +11,9 @@ steps:
   - name: Setup Gradle Environment
     uses: gradle/actions/setup-gradle@v3
 
-  - name: Configure Android SDK & Accept Licenses
+  - name: Generate Gradle Wrapper & Set Executable
     run: |
-      echo "sdk.dir=$ANDROID_HOME" > local.properties
-      yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses || true
-
-  - name: Ensure Executable Gradle Wrapper
-    run: |
-      if [ ! -f "gradlew" ] || [ ! -f "gradle/wrapper/gradle-wrapper.jar" ]; then
-        gradle wrapper --gradle-version 8.2
-      fi
+      gradle wrapper --gradle-version 8.2
       chmod +x gradlew
 
   - name: Build Debug APK
