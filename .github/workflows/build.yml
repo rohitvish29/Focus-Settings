@@ -11,11 +11,14 @@ steps:
   - name: Setup Android SDK & Accept Licenses
     uses: android-actions/setup-android@v3
 
-  - name: Install & Setup Gradle Build Tool
-    uses: gradle/actions/setup-gradle@v3
+  - name: Generate Official Gradle Wrapper
+    run: gradle wrapper --gradle-version 8.2
+
+  - name: Make Gradlew Executable
+    run: chmod +x gradlew
 
   - name: Build Debug APK
-    run: gradle assembleDebug --stacktrace
+    run: ./gradlew assembleDebug --stacktrace
 
   - name: Upload APK Artifact
     uses: actions/upload-artifact@v4
