@@ -4,15 +4,27 @@ plugins {
 }
 
 android {
+    // 1. CHANGE HERE: Unique package namespace for your app source code
     namespace = "com.example.selectivesettings"
     compileSdk = 34
 
     defaultConfig {
+        // 2. CHANGE HERE: Unique Application ID installed on Android devices
         applicationId = "com.example.selectivesettings"
         minSdk = 26
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
+    }
+
+    buildTypes {
+        release {
+            isMinifyEnabled = false
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
+        }
     }
 
     compileOptions {
@@ -22,6 +34,8 @@ android {
     kotlinOptions {
         jvmTarget = "17"
     }
+
+    // 3. ADDED: Enables ViewBinding for layout XML auto-generation in Kotlin
     buildFeatures {
         viewBinding = true
     }
