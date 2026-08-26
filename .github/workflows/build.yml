@@ -8,14 +8,20 @@ steps:
       java-version: '17'
       distribution: 'temurin'
 
-  - name: Setup Android SDK & Accept Licenses
-    uses: android-actions/setup-android@v3
+  - name: Setup Gradle Environment
+    uses: gradle/actions/setup-gradle@v3
 
-  - name: Generate Official Gradle Wrapper
-    run: gradle wrapper --gradle-version 8.2
+  - name: Configure Android SDK & Accept Licenses
+    run: |
+      echo "sdk.dir=$ANDROID_HOME" > local.properties
+      yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses || true
 
-  - name: Make Gradlew Executable
-    run: chmod +x gradlew
+  - name: Ensure Executable Gradle Wrapper
+    run: |
+      if [ ! -f "gradlew" ] || [ ! -f "gradle/wrapper/gradle-wrapper.jar" ]; then
+        gradle wrapper --gradle-version 8.2
+      fi
+      chmod +x gradlew
 
   - name: Build Debug APK
     run: ./gradlew assembleDebug --stacktrace
