@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="16dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <Button android:id="@+id/btnWifi" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="1. Wi-Fi Settings" />
+        <Button android:id="@+id/btnData" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="2. Mobile Data" />
+        <Button android:id="@+id/btnWifiCalling" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="3. Wi-Fi Calling" />
+        <Button android:id="@+id/btnBluetooth" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="4. Bluetooth" />
+        <Button android:id="@+id/btnSimManager" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="5. SIM Manager" />
+        <Button android:id="@+id/btnHotspot" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="6. Mobile Hotspot" />
+        <Button android:id="@+id/btnSound" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="7. Sound and Vibration" />
+        <Button android:id="@+id/btnNotifications" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="8. Notifications" />
+        <Button android:id="@+id/btnDisplay" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="9. Display" />
+        <Button android:id="@+id/btnBattery" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="10. Battery" />
+        <Button android:id="@+id/btnSecurity" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="11. Security and Privacy" />
+        <Button android:id="@+id/btnAccount" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="12. Account and Backup" />
+        <Button android:id="@+id/btnKeyboard" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="13. Keyboard" />
+        <Button android:id="@+id/btnSoftwareUpdate" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="14. Software Update" />
+
+    </LinearLayout>
+</ScrollView>
