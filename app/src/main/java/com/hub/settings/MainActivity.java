@@ -30,7 +30,7 @@ public class MainActivity extends Activity {
     static class Setting {
         String title, desc, icon, primary, fallback, colorHex;
         Setting(String t, String d, String i, String p, String f, String c) {
-            this.title=t; this.desc=d; this.icon=i; this.primary=p; this.fallback=f; this.colorHex=c;
+            this.title = t; this.desc = d; this.icon = i; this.primary = p; this.fallback = f; this.colorHex = c;
         }
     }
 
@@ -53,10 +53,10 @@ public class MainActivity extends Activity {
     private void setupThemeColors() {
         // App Background & Card Colors
         String bgColor = isDark ? "#121212" : "#F6F8FA";
-        String cardColor = isDark ? "#1E1E1E" : "#FFFFFF"; // Slightly darker card for better contrast
+        String cardColor = isDark ? "#1E1E1E" : "#FFFFFF";
         String textColor = isDark ? "#E3E3E3" : "#1F1F1F";
         String subTextColor = isDark ? "#9E9E9E" : "#636363";
-        String searchColor = isDark ? "#2D2F33" : "#E9EEF6"; // Dark muted search bar
+        String searchColor = isDark ? "#2D2F33" : "#E9EEF6"; 
         String activeBtnColor = isDark ? "#A8C7FA" : "#0B57D0";
         String activeBtnText = isDark ? "#041E49" : "#FFFFFF";
 
@@ -67,7 +67,7 @@ public class MainActivity extends Activity {
         searchBar.setTextColor(Color.parseColor(textColor));
         searchBar.setHintTextColor(Color.parseColor(subTextColor));
 
-        // Quick tiles get a subtle surface color in dark mode
+        // Quick tiles
         String quickTileBg = isDark ? "#282A2D" : "#FFFFFF";
         styleQuickTile(findViewById(R.id.tile_torch), quickTileBg, textColor, subTextColor);
         styleQuickTile(findViewById(R.id.tile_rotate), quickTileBg, textColor, subTextColor);
@@ -120,7 +120,7 @@ public class MainActivity extends Activity {
                     TextView status = findViewById(R.id.status_torch);
                     status.setText(isTorchOn ? "On" : "Off");
                     
-                    String activeBg = isDark ? "#004A77" : "#D3E3FD"; // Deep active blue in dark mode
+                    String activeBg = isDark ? "#004A77" : "#D3E3FD"; 
                     String inactiveBg = isDark ? "#282A2D" : "#FFFFFF";
                     v.setBackground(createRoundedBg(isTorchOn ? activeBg : inactiveBg, 48));
                 }
@@ -135,16 +135,15 @@ public class MainActivity extends Activity {
     }
 
     private void buildSettingsList() {
-        // BEAUTIFUL MATERIAL YOU COLORS
-        // Dark Mode: Deep, rich tonal colors so emojis pop cleanly
-        // Light Mode: Soft, pleasant pastel colors
-        String netColor = isDark ? "#003355" : "#D3E3FD";   // Deep Blue / Soft Blue
-        String devColor = isDark ? "#0D381E" : "#C4EED0";   // Deep Green / Soft Green
-        String notifColor = isDark ? "#5C162E" : "#F8D8E5"; // Deep Pink / Soft Pink
-        String sysColor = isDark ? "#593000" : "#FEEFC3";   // Deep Orange / Soft Orange
+        // BEAUTIFUL MATERIAL YOU COLORS (Tonal for Dark, Pastel for Light)
+        String netColor = isDark ? "#003355" : "#D3E3FD";   // Blue
+        String devColor = isDark ? "#0D381E" : "#C4EED0";   // Green
+        String notifColor = isDark ? "#5C162E" : "#F8D8E5"; // Pink
+        String sysColor = isDark ? "#593000" : "#FEEFC3";   // Orange
 
         Setting[] allSettings = {
-            new Setting("Network & internet", "Wi-Fi, mobile, hotspot", "🌐", "WIFI_SETTINGS", "", netColor),
+            new Setting("Wi-Fi & Networks", "Manage Wi-Fi connections", "🌐", "WIFI_SETTINGS", "", netColor),
+            new Setting("Mobile Hotspot", "Share network via tethering", "🛜", "TETHER_SETTINGS", "WIRELESS_SETTINGS", netColor),
             new Setting("Mobile Data", "Data usage and toggle", "📶", "DATA_USAGE_SETTINGS", "NETWORK_OPERATOR_SETTINGS", netColor),
             new Setting("Connected devices", "Bluetooth, pairing", "🔵", "BLUETOOTH_SETTINGS", "", devColor),
             new Setting("Notifications", "Notification history, alerts", "🔔", "ALL_APPS_NOTIFICATION_SETTINGS", "NOTIFICATION_SETTINGS", notifColor),
