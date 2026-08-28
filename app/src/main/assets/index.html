@@ -1,56 +1,125 @@
-<script>
-    /* 1. Launch Settings cleanly via Native Android Bridge */
-    function openSetting(primary, fallback = '') {
-      if (window.AndroidNative && window.AndroidNative.openSetting) {
-        window.AndroidNative.openSetting(primary, fallback);
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Settings Hub</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
+  <style>
+    :root {
+      --bg: #f6f8fa; --card: #ffffff; --text: #1f1f1f; --sub: #636363;
+      --accent: #0b57d0; --border: #e0e2e5; --active: #0b57d0; --active-text: #fff;
+      --header: rgba(246, 248, 250, 0.9);
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #121212; --card: #1e1e1e; --text: #e3e3e3; --sub: #9e9e9e;
+        --accent: #a8c7fa; --border: #2d2d2d; --active: #a8c7fa; --active-text: #041e49;
+        --header: rgba(18, 18, 18, 0.9);
       }
     }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, sans-serif; -webkit-tap-highlight-color: transparent; }
+    body { background: var(--bg); color: var(--text); padding: 85px 16px 30px; max-width: 600px; margin: 0 auto; }
+    
+    .floating-search-wrap { position: fixed; top: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 600px; padding: 12px 16px; background: var(--header); backdrop-filter: blur(12px); z-index: 1000; }
+    .search-box { display: flex; align-items: center; background: var(--card); border: 1px solid var(--border); border-radius: 28px; padding: 10px 16px; box-shadow: 0 2px 12px rgba(0,0,0,0.08); }
+    .search-box span { color: var(--sub); margin-right: 10px; font-size: 22px; }
+    .search-box input { border: none; background: transparent; outline: none; font-size: 0.95rem; color: var(--text); width: 100%; }
+    
+    .quick-panel-title, .section-title { font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--accent); margin: 16px 8px 8px; }
+    .quick-tiles-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
+    
+    .quick-tile { background: var(--card); border: 1px solid var(--border); border-radius: 18px; padding: 16px; min-height: 96px; display: flex; flex-direction: column; justify-content: space-between; cursor: pointer; text-decoration: none; color: var(--text); }
+    .quick-tile.active { background: var(--active); color: var(--active-text); border-color: transparent; }
+    .quick-tile .tile-icon { font-size: 28px; }
+    .quick-tile .tile-text { margin-top: 10px; font-size: 0.95rem; font-weight: 600; }
+    .quick-tile .tile-status { font-size: 0.75rem; opacity: 0.8; }
+    
+    .settings-group { background: var(--card); border-radius: 16px; overflow: hidden; border: 1px solid var(--border); }
+    .setting-item { display: flex; align-items: center; padding: 14px 16px; color: var(--text); border-bottom: 1px solid var(--border); cursor: pointer; text-decoration: none; }
+    .setting-item:last-child { border-bottom: none; }
+    .icon-container { display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 50%; background: rgba(11, 87, 208, 0.1); color: var(--accent); margin-right: 14px; flex-shrink: 0; }
+    .setting-info { flex-grow: 1; }
+    .setting-title { font-size: 1rem; font-weight: 500; }
+    .setting-desc { font-size: 0.8rem; color: var(--sub); }
+    .chevron { color: var(--sub); font-size: 1.2rem; }
 
-    /* 2. Flashlight uses Native Hardware API now (Fast & Reliable) */
-    function handleTorch() {
-      const tile = document.getElementById('torchTile');
-      const icon = document.getElementById('torchIcon');
-      const status = document.getElementById('torchStatus');
+    /* Fullscreen Screen Torch */
+    #screenFlashlight { display: none; position: fixed; inset: 0; background: #ffffff; z-index: 9999; }
+  </style>
+</head>
+<body>
 
-      if (window.AndroidNative && window.AndroidNative.toggleNativeTorch) {
-        const isNowOn = window.AndroidNative.toggleNativeTorch();
-        
-        if (isNowOn) {
-          tile.classList.add('active'); 
-          icon.textContent = 'flashlight_on'; 
-          status.textContent = 'LED On';
-        } else {
-          tile.classList.remove('active'); 
-          icon.textContent = 'flashlight_off'; 
-          status.textContent = 'Tap to Turn On';
-        }
-      } else {
-        // Fallback if opened in regular browser instead of the App
-        toggleScreenTorch();
-      }
-    }
+  <div id="screenFlashlight" onclick="toggleScreenTorch()"></div>
 
-    // White screen fallback (only used if native LED is broken)
-    function toggleScreenTorch() {
-      const overlay = document.getElementById('screenFlashlight');
-      overlay.style.display = (overlay.style.display === 'block') ? 'none' : 'block';
-    }
+  <div class="floating-search-wrap">
+    <div class="search-box">
+      <span class="material-symbols-outlined">search</span>
+      <input type="text" id="searchInput" placeholder="Search settings..." oninput="filterSettings()" />
+    </div>
+  </div>
 
-    /* 3. Search Filter */
-    function filterSettings() {
-      const query = document.getElementById('searchInput').value.toLowerCase().trim();
-      const sections = document.querySelectorAll('.section-group');
-      document.getElementById('quickPanelSection').style.display = query.length > 0 ? 'none' : 'block';
+  <div id="quickPanelSection">
+    <div class="quick-panel-title">Quick Access</div>
+    <div class="quick-tiles-grid">
+      <div class="quick-tile" id="torchTile" onclick="toggleScreenTorch()">
+        <span class="material-symbols-outlined tile-icon" id="torchIcon">flashlight_off</span>
+        <div>
+          <div class="tile-text">Flashlight</div>
+          <div class="tile-status" id="torchStatus">Screen Torch</div>
+        </div>
+      </div>
+      
+      <a href="intent:#Intent;action=android.settings.DISPLAY_SETTINGS;end" class="quick-tile">
+        <span class="material-symbols-outlined tile-icon">screen_rotation</span>
+        <div>
+          <div class="tile-text">Auto Rotate</div>
+          <div class="tile-status">Display Settings</div>
+        </div>
+      </a>
+    </div>
+  </div>
 
-      sections.forEach(section => {
-        let visibleCount = 0;
-        section.querySelectorAll('.setting-item').forEach(item => {
-          const text = item.textContent.toLowerCase();
-          const match = text.includes(query);
-          item.style.display = match ? 'flex' : 'none';
-          if (match) visibleCount++;
-        });
-        section.style.display = visibleCount > 0 ? 'block' : 'none';
-      });
-    }
-  </script>
+  <div id="settingsContainer">
+    <div class="section-group">
+      <div class="section-title">Network & Connectivity</div>
+      <div class="settings-group">
+        <a href="intent:#Intent;action=android.settings.WIFI_SETTINGS;end" class="setting-item">
+          <div class="icon-container"><span class="material-symbols-outlined">wifi</span></div>
+          <div class="setting-info"><div class="setting-title">Wi-Fi Settings</div><div class="setting-desc">Networks and Wi-Fi preferences</div></div>
+          <span class="material-symbols-outlined chevron">chevron_right</span>
+        </a>
+        <a href="intent:#Intent;action=android.settings.DATA_ROAMING_SETTINGS;end" class="setting-item">
+          <div class="icon-container"><span class="material-symbols-outlined">signal_cellular_alt</span></div>
+          <div class="setting-info"><div class="setting-title">Mobile Data</div><div class="setting-desc">Mobile network, data usage, roaming</div></div>
+          <span class="material-symbols-outlined chevron">chevron_right</span>
+        </a>
+        <a href="intent:#Intent;action=android.settings.WIFI_CALLING_SETTINGS;end" class="setting-item">
+          <div class="icon-container"><span class="material-symbols-outlined">wifi_calling</span></div>
+          <div class="setting-info"><div class="setting-title">Wi-Fi Calling</div><div class="setting-desc">Call & SMS over Wi-Fi networks</div></div>
+          <span class="material-symbols-outlined chevron">chevron_right</span>
+        </a>
+        <a href="intent:#Intent;action=android.settings.BLUETOOTH_SETTINGS;end" class="setting-item">
+          <div class="icon-container"><span class="material-symbols-outlined">bluetooth</span></div>
+          <div class="setting-info"><div class="setting-title">Bluetooth</div><div class="setting-desc">Pair and manage devices</div></div>
+          <span class="material-symbols-outlined chevron">chevron_right</span>
+        </a>
+        <a href="intent:#Intent;action=android.settings.WIRELESS_SETTINGS;end" class="setting-item">
+          <div class="icon-container"><span class="material-symbols-outlined">sim_card</span></div>
+          <div class="setting-info"><div class="setting-title">SIM Manager</div><div class="setting-desc">eSIM and SIM card settings</div></div>
+          <span class="material-symbols-outlined chevron">chevron_right</span>
+        </a>
+        <a href="intent:#Intent;action=android.settings.TETHER_SETTINGS;end" class="setting-item">
+          <div class="icon-container"><span class="material-symbols-outlined">wifi_tethering</span></div>
+          <div class="setting-info"><div class="setting-title">Mobile Hotspot</div><div class="setting-desc">Portable hotspot & USB tethering</div></div>
+          <span class="material-symbols-outlined chevron">chevron_right</span>
+        </a>
+      </div>
+    </div>
+
+    <div class="section-group">
+      <div class="section-title">Sound & Display</div>
+      <div class="settings-group">
+        <a href="intent:#Intent;action=android.settings.SOUND_SETTINGS;end" class="setting-item">
+          <div class="icon-container"><span class="material-symbols-outlined">volume_up</span></div>
+          <div class="
