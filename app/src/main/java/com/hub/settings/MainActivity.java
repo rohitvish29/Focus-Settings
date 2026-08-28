@@ -137,7 +137,7 @@ public class MainActivity extends Activity {
         });
 
         findViewById(R.id.tile_rotate).setOnClickListener(v -> 
-            openSetting("android.settings.AUTO_ROTATE_SETTINGS", "android.settings.DISPLAY_SETTINGS")
+            openSetting("AUTO_ROTATE_SETTINGS", "DISPLAY_SETTINGS")
         );
     }
 
@@ -150,17 +150,17 @@ public class MainActivity extends Activity {
         String dangerColor = isDark ? "#8C1D18" : "#F9DEDC"; // Red (Destructive Actions)
 
         Setting[] allSettings = {
-            new Setting("Wi-Fi & Networks", "Manage Wi-Fi connections", "🌐", "android.settings.WIFI_SETTINGS", "", netColor),
-            new Setting("Mobile Hotspot", "Share network via tethering", "🛜", "android.settings.TETHER_SETTINGS", "android.settings.WIRELESS_SETTINGS", netColor),
-            new Setting("Mobile Data", "Data usage and toggle", "📶", "android.settings.DATA_USAGE_SETTINGS", "android.settings.NETWORK_OPERATOR_SETTINGS", netColor),
-            new Setting("Connected devices", "Bluetooth, pairing", "🔵", "android.settings.BLUETOOTH_SETTINGS", "", devColor),
-            new Setting("Notifications", "Notification history, alerts", "🔔", "android.settings.ALL_APPS_NOTIFICATION_SETTINGS", "android.settings.NOTIFICATION_SETTINGS", notifColor),
-            new Setting("Sound & vibration", "Volume and haptics", "🔊", "android.settings.SOUND_SETTINGS", "", notifColor),
-            new Setting("Display", "Brightness, dark theme", "☀️", "android.settings.DISPLAY_SETTINGS", "", sysColor),
-            new Setting("Battery", "Power saver and usage", "🔋", "android.settings.BATTERY_SAVER_SETTINGS", "android.settings.SETTINGS", devColor),
-            new Setting("Security & Privacy", "Biometrics and screen lock", "🔒", "android.settings.SECURITY_SETTINGS", "", sysColor),
-            new Setting("System Updates", "Check for OS patches", "🔄", "android.settings.SYSTEM_UPDATE_SETTINGS", "android.settings.DEVICE_INFO_SETTINGS", netColor),
-            new Setting("Factory Reset", "Erase all device data", "⚠️", "android.settings.PRIVACY_SETTINGS", "android.settings.SYNC_SETTINGS", dangerColor)
+            new Setting("Wi-Fi & Networks", "Manage Wi-Fi connections", "🌐", "WIFI_SETTINGS", "", netColor),
+            new Setting("Mobile Hotspot", "Share network via tethering", "🛜", "TETHER_SETTINGS", "WIRELESS_SETTINGS", netColor),
+            new Setting("Mobile Data", "Data usage and toggle", "📶", "DATA_USAGE_SETTINGS", "NETWORK_OPERATOR_SETTINGS", netColor),
+            new Setting("Connected devices", "Bluetooth, pairing", "🔵", "BLUETOOTH_SETTINGS", "", devColor),
+            new Setting("Notifications", "Notification history, alerts", "🔔", "ALL_APPS_NOTIFICATION_SETTINGS", "NOTIFICATION_SETTINGS", notifColor),
+            new Setting("Sound & vibration", "Volume and haptics", "🔊", "SOUND_SETTINGS", "", notifColor),
+            new Setting("Display", "Brightness, dark theme", "☀️", "DISPLAY_SETTINGS", "", sysColor),
+            new Setting("Battery", "Power saver and usage", "🔋", "BATTERY_SAVER_SETTINGS", "SETTINGS", devColor),
+            new Setting("Security & Privacy", "Biometrics and screen lock", "🔒", "SECURITY_SETTINGS", "", sysColor),
+            new Setting("System Updates", "Check for OS patches", "🔄", "SYSTEM_UPDATE_SETTINGS", "DEVICE_INFO_SETTINGS", netColor),
+            new Setting("Factory Reset", "Erase all device data", "⚠️", "PRIVACY_SETTINGS", "SYNC_SETTINGS", dangerColor)
         };
 
         LinearLayout listContainer = findViewById(R.id.list_container);
@@ -236,14 +236,14 @@ public class MainActivity extends Activity {
 
     private void openSetting(String primary, String fallback) {
         try {
-            Intent intent = new Intent(primary);
+            Intent intent = new Intent("android.settings." + primary);
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             if (intent.resolveActivity(getPackageManager()) != null) {
                 startActivity(intent);
                 return;
             }
             if (!fallback.isEmpty()) {
-                Intent fallbackIntent = new Intent(fallback);
+                Intent fallbackIntent = new Intent("android.settings." + fallback);
                 fallbackIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 if (fallbackIntent.resolveActivity(getPackageManager()) != null) {
                     startActivity(fallbackIntent);
