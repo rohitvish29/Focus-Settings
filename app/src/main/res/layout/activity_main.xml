@@ -1,20 +1,63 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/root_view"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="#f6f8fa"
     android:paddingTop="32dp"
     android:paddingHorizontal="16dp">
 
     <EditText
         android:id="@+id/search_bar"
         android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:background="@android:drawable/editbox_background"
+        android:layout_height="56dp"
         android:hint="Search settings..."
-        android:paddingHorizontal="16dp"
-        android:layout_marginBottom="16dp"/>
+        android:paddingHorizontal="24dp"
+        android:textSize="18sp"
+        android:drawableStart="@android:drawable/ic_menu_search"
+        android:drawablePadding="12dp"
+        android:layout_marginBottom="16dp"
+        android:singleLine="true"
+        android:elevation="2dp"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginBottom="24dp"
+        android:gravity="center">
+        
+        <TextView
+            android:id="@+id/btn_theme_sys"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:text="System"
+            android:textAlignment="center"
+            android:padding="10dp"
+            android:textStyle="bold"/>
+            
+        <TextView
+            android:id="@+id/btn_theme_light"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:text="Light"
+            android:textAlignment="center"
+            android:padding="10dp"
+            android:textStyle="bold"
+            android:layout_marginHorizontal="8dp"/>
+            
+        <TextView
+            android:id="@+id/btn_theme_dark"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:text="Dark"
+            android:textAlignment="center"
+            android:padding="10dp"
+            android:textStyle="bold"/>
+    </LinearLayout>
 
     <ScrollView
         android:layout_width="match_parent"
@@ -25,15 +68,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="QUICK ACCESS"
-                android:textStyle="bold"
-                android:textColor="#636363"
-                android:textSize="12sp"
-                android:paddingBottom="12dp" />
 
             <LinearLayout
                 android:id="@+id/quick_panel"
@@ -46,51 +80,40 @@
                     android:id="@+id/tile_torch"
                     android:layout_width="0dp"
                     android:layout_weight="1"
-                    android:layout_height="100dp"
+                    android:layout_height="110dp"
                     android:orientation="vertical"
-                    android:background="@android:drawable/dialog_holo_light_frame"
-                    android:padding="12dp"
+                    android:padding="16dp"
                     android:layout_marginEnd="6dp"
                     android:clickable="true"
                     android:focusable="true">
-                    <TextView android:id="@+id/icon_torch" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="🔦" android:textSize="24sp"/>
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Flashlight" android:textStyle="bold" android:textColor="#1f1f1f" android:layout_marginTop="8dp"/>
-                    <TextView android:id="@+id/status_torch" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Off" android:textColor="#636363" android:textSize="12sp"/>
+                    <TextView android:id="@+id/icon_torch" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="🔦" android:textSize="26sp"/>
+                    <TextView android:id="@+id/text_torch" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Flashlight" android:textStyle="bold" android:layout_marginTop="12dp"/>
+                    <TextView android:id="@+id/status_torch" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Off" android:textSize="12sp"/>
                 </LinearLayout>
 
                 <LinearLayout
                     android:id="@+id/tile_rotate"
                     android:layout_width="0dp"
                     android:layout_weight="1"
-                    android:layout_height="100dp"
+                    android:layout_height="110dp"
                     android:orientation="vertical"
-                    android:background="@android:drawable/dialog_holo_light_frame"
-                    android:padding="12dp"
+                    android:padding="16dp"
                     android:layout_marginStart="6dp"
                     android:clickable="true"
                     android:focusable="true">
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="🔄" android:textSize="24sp"/>
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Auto Rotate" android:textStyle="bold" android:textColor="#1f1f1f" android:layout_marginTop="8dp"/>
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="System Settings" android:textColor="#636363" android:textSize="12sp"/>
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="🔄" android:textSize="26sp"/>
+                    <TextView android:id="@+id/text_rotate" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Auto Rotate" android:textStyle="bold" android:layout_marginTop="12dp"/>
+                    <TextView android:id="@+id/status_rotate" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Settings" android:textSize="12sp"/>
                 </LinearLayout>
             </LinearLayout>
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="SETTINGS"
-                android:textStyle="bold"
-                android:textColor="#636363"
-                android:textSize="12sp"
-                android:paddingBottom="12dp" />
 
             <LinearLayout
                 android:id="@+id/list_container"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:background="@android:drawable/dialog_holo_light_frame"
-                android:paddingVertical="8dp" />
+                android:paddingVertical="8dp"
+                android:layout_marginBottom="32dp"/>
                 
         </LinearLayout>
     </ScrollView>
