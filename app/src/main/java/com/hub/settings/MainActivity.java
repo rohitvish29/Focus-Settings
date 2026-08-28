@@ -30,7 +30,12 @@ public class MainActivity extends Activity {
     static class Setting {
         String title, desc, icon, primary, fallback, colorHex;
         Setting(String t, String d, String i, String p, String f, String c) {
-            this.title = t; this.desc = d; this.icon = i; this.primary = p; this.fallback = f; this.colorHex = c;
+            this.title = t; 
+            this.desc = d; 
+            this.icon = i; 
+            this.primary = p; 
+            this.fallback = f; 
+            this.colorHex = c;
         }
     }
 
@@ -110,7 +115,9 @@ public class MainActivity extends Activity {
             if (cameraManager.getCameraIdList().length > 0) {
                 cameraId = cameraManager.getCameraIdList()[0];
             }
-        } catch (Exception e) { e.printStackTrace(); }
+        } catch (Exception e) { 
+            e.printStackTrace(); 
+        }
 
         findViewById(R.id.tile_torch).setOnClickListener(v -> {
             try {
@@ -135,11 +142,12 @@ public class MainActivity extends Activity {
     }
 
     private void buildSettingsList() {
-        // BEAUTIFUL MATERIAL YOU COLORS (Tonal for Dark, Pastel for Light)
+        // MATERIAL YOU COLOR PALETTE (Tonal for Dark, Soft Pastel for Light)
         String netColor = isDark ? "#003355" : "#D3E3FD";   // Blue
         String devColor = isDark ? "#0D381E" : "#C4EED0";   // Green
         String notifColor = isDark ? "#5C162E" : "#F8D8E5"; // Pink
         String sysColor = isDark ? "#593000" : "#FEEFC3";   // Orange
+        String dangerColor = isDark ? "#8C1D18" : "#F9DEDC"; // Red (Destructive Actions)
 
         Setting[] allSettings = {
             new Setting("Wi-Fi & Networks", "Manage Wi-Fi connections", "🌐", "WIFI_SETTINGS", "", netColor),
@@ -151,7 +159,8 @@ public class MainActivity extends Activity {
             new Setting("Display", "Brightness, dark theme", "☀️", "DISPLAY_SETTINGS", "", sysColor),
             new Setting("Battery", "Power saver and usage", "🔋", "BATTERY_SAVER_SETTINGS", "SETTINGS", devColor),
             new Setting("Security & Privacy", "Biometrics and screen lock", "🔒", "SECURITY_SETTINGS", "", sysColor),
-            new Setting("System Updates", "Check for OS patches", "🔄", "SYSTEM_UPDATE_SETTINGS", "DEVICE_INFO_SETTINGS", netColor)
+            new Setting("System Updates", "Check for OS patches", "🔄", "SYSTEM_UPDATE_SETTINGS", "DEVICE_INFO_SETTINGS", netColor),
+            new Setting("Factory Reset", "Erase all device data", "⚠️", "PRIVACY_SETTINGS", "SYNC_SETTINGS", dangerColor)
         };
 
         LinearLayout listContainer = findViewById(R.id.list_container);
@@ -240,6 +249,8 @@ public class MainActivity extends Activity {
                     startActivity(fallbackIntent);
                 }
             }
-        } catch (Exception e) { e.printStackTrace(); }
+        } catch (Exception e) { 
+            e.printStackTrace(); 
+        }
     }
 }
