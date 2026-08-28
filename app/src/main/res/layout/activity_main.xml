@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#f6f8fa"
+    android:paddingTop="32dp"
+    android:paddingHorizontal="16dp">
+
+    <EditText
+        android:id="@+id/search_bar"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:background="@android:drawable/editbox_background"
+        android:hint="Search settings..."
+        android:paddingHorizontal="16dp"
+        android:layout_marginBottom="16dp"/>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scrollbars="none">
+        
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="QUICK ACCESS"
+                android:textStyle="bold"
+                android:textColor="#636363"
+                android:textSize="12sp"
+                android:paddingBottom="12dp" />
+
+            <LinearLayout
+                android:id="@+id/quick_panel"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginBottom="24dp">
+                
+                <LinearLayout
+                    android:id="@+id/tile_torch"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="100dp"
+                    android:orientation="vertical"
+                    android:background="@android:drawable/dialog_holo_light_frame"
+                    android:padding="12dp"
+                    android:layout_marginEnd="6dp"
+                    android:clickable="true"
+                    android:focusable="true">
+                    <TextView android:id="@+id/icon_torch" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="🔦" android:textSize="24sp"/>
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Flashlight" android:textStyle="bold" android:textColor="#1f1f1f" android:layout_marginTop="8dp"/>
+                    <TextView android:id="@+id/status_torch" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Off" android:textColor="#636363" android:textSize="12sp"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/tile_rotate"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="100dp"
+                    android:orientation="vertical"
+                    android:background="@android:drawable/dialog_holo_light_frame"
+                    android:padding="12dp"
+                    android:layout_marginStart="6dp"
+                    android:clickable="true"
+                    android:focusable="true">
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="🔄" android:textSize="24sp"/>
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Auto Rotate" android:textStyle="bold" android:textColor="#1f1f1f" android:layout_marginTop="8dp"/>
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="System Settings" android:textColor="#636363" android:textSize="12sp"/>
+                </LinearLayout>
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="SETTINGS"
+                android:textStyle="bold"
+                android:textColor="#636363"
+                android:textSize="12sp"
+                android:paddingBottom="12dp" />
+
+            <LinearLayout
+                android:id="@+id/list_container"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="@android:drawable/dialog_holo_light_frame"
+                android:paddingVertical="8dp" />
+                
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>
