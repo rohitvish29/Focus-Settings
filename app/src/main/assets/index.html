@@ -1,57 +1,42 @@
 <script>
-    /* Native App Bridge Launcher (Clean & Instant) */
+    /* 1. Launch Settings cleanly via Native Android Bridge */
     function openSetting(primary, fallback = '') {
       if (window.AndroidNative && window.AndroidNative.openSetting) {
         window.AndroidNative.openSetting(primary, fallback);
-      } else {
-        // Browser fallback
-        window.location.href = `intent:#Intent;action=android.settings.${primary};end`;
       }
     }
 
-    /* Flashlight Feature */
-    let torchTrack = null;
-    async function handleTorch() {
+    /* 2. Flashlight uses Native Hardware API now (Fast & Reliable) */
+    function handleTorch() {
       const tile = document.getElementById('torchTile');
       const icon = document.getElementById('torchIcon');
       const status = document.getElementById('torchStatus');
 
-      if (torchTrack) {
-        torchTrack.applyConstraints({ advanced: [{ torch: false }] }).catch(() => {});
-        torchTrack.stop(); 
-        torchTrack = null;
-        tile.classList.remove('active'); 
-        icon.textContent = 'flashlight_off'; 
-        status.textContent = 'Tap to Turn On';
-        return;
-      }
-
-      try {
-        const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: 'environment' } } });
-        const track = stream.getVideoTracks()[0];
-        const capabilities = track.getCapabilities ? track.getCapabilities() : {};
-
-        if (capabilities.torch) {
-          await track.applyConstraints({ advanced: [{ torch: true }] });
-          torchTrack = track;
+      if (window.AndroidNative && window.AndroidNative.toggleNativeTorch) {
+        const isNowOn = window.AndroidNative.toggleNativeTorch();
+        
+        if (isNowOn) {
           tile.classList.add('active'); 
           icon.textContent = 'flashlight_on'; 
           status.textContent = 'LED On';
         } else {
-          track.stop(); 
-          toggleScreenTorch();
+          tile.classList.remove('active'); 
+          icon.textContent = 'flashlight_off'; 
+          status.textContent = 'Tap to Turn On';
         }
-      } catch (err) { 
-        toggleScreenTorch(); 
+      } else {
+        // Fallback if opened in regular browser instead of the App
+        toggleScreenTorch();
       }
     }
 
+    // White screen fallback (only used if native LED is broken)
     function toggleScreenTorch() {
       const overlay = document.getElementById('screenFlashlight');
       overlay.style.display = (overlay.style.display === 'block') ? 'none' : 'block';
     }
 
-    /* Search Filter */
+    /* 3. Search Filter */
     function filterSettings() {
       const query = document.getElementById('searchInput').value.toLowerCase().trim();
       const sections = document.querySelectorAll('.section-group');
