@@ -7,6 +7,7 @@ import android.hardware.camera2.CameraManager;
 import android.os.Bundle;
 import android.webkit.JavascriptInterface;
 import android.webkit.WebChromeClient;
+import android.webkit.WebViewClient;
 import android.webkit.PermissionRequest;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
@@ -21,19 +22,27 @@ public class MainActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // 1. Setup Camera Hardware for Native Flashlight
+        // Setup Camera Hardware for Native Flashlight
         cameraManager = (CameraManager) getSystemService(Context.CAMERA_SERVICE);
         try {
-            cameraId = cameraManager.getCameraIdList()[0]; // Get primary rear camera
+            if (cameraManager.getCameraIdList().length > 0) {
+                cameraId = cameraManager.getCameraIdList()[0];
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
 
-        // 2. Setup WebView
+        // Setup WebView
         webView = new WebView(this);
         WebSettings ws = webView.getSettings();
         ws.setJavaScriptEnabled(true);
         ws.setDomStorageEnabled(true);
+        
+        // --- CRITICAL FIX FOR WHITE SCREEN ---
+        ws.setAllowFileAccess(true);
+        ws.setAllowContentAccess(true);
+        webView.setWebViewClient(new WebViewClient());
+        // -------------------------------------
 
         webView.setWebChromeClient(new WebChromeClient() {
             @Override
@@ -42,23 +51,20 @@ public class MainActivity extends Activity {
             }
         });
 
-        // 3. Connect JavaScript to Native Android Actions
+        // Connect JavaScript to Native Android Actions
         webView.addJavascriptInterface(new Object() {
             
-            // Safely open settings without double-jumping
             @JavascriptInterface
             public void openSetting(String action, String fallbackAction) {
                 try {
                     Intent intent = new Intent("android.settings." + action);
                     intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                     
-                    // Check if the specific setting exists on this phone
                     if (intent.resolveActivity(getPackageManager()) != null) {
                         startActivity(intent);
-                        return; // Stop here! Do not run fallback.
+                        return; 
                     }
                     
-                    // Only run fallback if the primary setting is completely missing
                     if (fallbackAction != null && !fallbackAction.isEmpty()) {
                         Intent fallback = new Intent("android.settings." + fallbackAction);
                         fallback.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -71,7 +77,6 @@ public class MainActivity extends Activity {
                 }
             }
 
-            // Native hardware flashlight toggle
             @JavascriptInterface
             public boolean toggleNativeTorch() {
                 try {
