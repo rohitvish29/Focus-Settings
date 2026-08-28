@@ -7,6 +7,7 @@
     android:paddingTop="32dp"
     android:paddingHorizontal="16dp">
 
+    <!-- Pill Shaped Search Bar -->
     <EditText
         android:id="@+id/search_bar"
         android:layout_width="match_parent"
@@ -20,6 +21,7 @@
         android:singleLine="true"
         android:elevation="2dp"/>
 
+    <!-- Theme Selector -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -69,6 +71,7 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
+            <!-- Quick Tiles Grid -->
             <LinearLayout
                 android:id="@+id/quick_panel"
                 android:layout_width="match_parent"
@@ -102,3 +105,20 @@
                     android:clickable="true"
                     android:focusable="true">
                     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="🔄" android:textSize="26sp"/>
+                    <TextView android:id="@+id/text_rotate" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Auto Rotate" android:textStyle="bold" android:layout_marginTop="12dp"/>
+                    <TextView android:id="@+id/status_rotate" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Settings" android:textSize="12sp"/>
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- Main Settings List Container -->
+            <LinearLayout
+                android:id="@+id/list_container"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingVertical="8dp"
+                android:layout_marginBottom="32dp"/>
+                
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>
