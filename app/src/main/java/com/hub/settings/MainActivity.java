@@ -51,6 +51,7 @@ public class MainActivity extends Activity {
     }
 
     private void setupThemeColors() {
+        // App Background & Card Colors
         String bgColor = isDark ? "#121212" : "#F6F8FA";
         String cardColor = isDark ? "#1E1E1E" : "#FFFFFF";
         String textColor = isDark ? "#E3E3E3" : "#1F1F1F";
@@ -66,6 +67,7 @@ public class MainActivity extends Activity {
         searchBar.setTextColor(Color.parseColor(textColor));
         searchBar.setHintTextColor(Color.parseColor(subTextColor));
 
+        // Quick tiles
         String quickTileBg = isDark ? "#282A2D" : "#FFFFFF";
         styleQuickTile(findViewById(R.id.tile_torch), quickTileBg, textColor, subTextColor);
         styleQuickTile(findViewById(R.id.tile_rotate), quickTileBg, textColor, subTextColor);
@@ -110,7 +112,6 @@ public class MainActivity extends Activity {
             }
         } catch (Exception e) { e.printStackTrace(); }
 
-        // Flashlight: Uses pure hardware APIs, immune to MDM settings blocks
         findViewById(R.id.tile_torch).setOnClickListener(v -> {
             try {
                 if (cameraId != null) {
@@ -129,35 +130,28 @@ public class MainActivity extends Activity {
         });
 
         findViewById(R.id.tile_rotate).setOnClickListener(v -> 
-            openSetting("android.settings.AUTO_ROTATE_SETTINGS", "android.settings.DISPLAY_SETTINGS")
+            openSetting("AUTO_ROTATE_SETTINGS", "DISPLAY_SETTINGS")
         );
     }
 
     private void buildSettingsList() {
-        String netColor = isDark ? "#003355" : "#D3E3FD";   
-        String devColor = isDark ? "#0D381E" : "#C4EED0";   
-        String notifColor = isDark ? "#5C162E" : "#F8D8E5"; 
-        String sysColor = isDark ? "#593000" : "#FEEFC3";   
+        // BEAUTIFUL MATERIAL YOU COLORS (Tonal for Dark, Pastel for Light)
+        String netColor = isDark ? "#003355" : "#D3E3FD";   // Blue
+        String devColor = isDark ? "#0D381E" : "#C4EED0";   // Green
+        String notifColor = isDark ? "#5C162E" : "#F8D8E5"; // Pink
+        String sysColor = isDark ? "#593000" : "#FEEFC3";   // Orange
 
-        // MDM BYPASS ENGINE: Using Floating SystemUI Panels and System Dialogs
         Setting[] allSettings = {
-            // Wi-Fi & Data trigger the SystemUI Internet Panel
-            new Setting("Wi-Fi & Networks", "Manage Wi-Fi connections", "🌐", "android.settings.panel.action.INTERNET_CONNECTIVITY", "android.settings.WIFI_SETTINGS", netColor),
-            new Setting("Mobile Hotspot", "Share network via tethering", "🛜", "android.settings.TETHER_SETTINGS", "android.settings.WIRELESS_SETTINGS", netColor),
-            new Setting("Mobile Data", "Data usage and toggle", "📶", "android.settings.panel.action.INTERNET_CONNECTIVITY", "android.settings.DATA_USAGE_SETTINGS", netColor),
-            
-            // Bluetooth triggers the System Permission Dialog, avoiding the Settings app entirely
-            new Setting("Bluetooth", "Turn on Bluetooth", "🔵", "android.bluetooth.adapter.action.REQUEST_ENABLE", "android.settings.BLUETOOTH_SETTINGS", devColor),
-            
-            new Setting("Notifications", "Notification history, alerts", "🔔", "android.settings.ALL_APPS_NOTIFICATION_SETTINGS", "android.settings.NOTIFICATION_SETTINGS", notifColor),
-            
-            // Sound triggers the floating Volume Panel
-            new Setting("Sound & vibration", "Volume and haptics", "🔊", "android.settings.panel.action.VOLUME", "android.settings.SOUND_SETTINGS", notifColor),
-            
-            new Setting("Display", "Brightness, dark theme", "☀️", "android.settings.DISPLAY_SETTINGS", "", sysColor),
-            new Setting("Battery", "Power saver and usage", "🔋", "android.settings.BATTERY_SAVER_SETTINGS", "android.settings.SETTINGS", devColor),
-            new Setting("Security & Privacy", "Biometrics and screen lock", "🔒", "android.settings.SECURITY_SETTINGS", "", sysColor),
-            new Setting("System Updates", "Check for OS patches", "🔄", "android.settings.SYSTEM_UPDATE_SETTINGS", "android.settings.DEVICE_INFO_SETTINGS", netColor)
+            new Setting("Wi-Fi & Networks", "Manage Wi-Fi connections", "🌐", "WIFI_SETTINGS", "", netColor),
+            new Setting("Mobile Hotspot", "Share network via tethering", "🛜", "TETHER_SETTINGS", "WIRELESS_SETTINGS", netColor),
+            new Setting("Mobile Data", "Data usage and toggle", "📶", "DATA_USAGE_SETTINGS", "NETWORK_OPERATOR_SETTINGS", netColor),
+            new Setting("Connected devices", "Bluetooth, pairing", "🔵", "BLUETOOTH_SETTINGS", "", devColor),
+            new Setting("Notifications", "Notification history, alerts", "🔔", "ALL_APPS_NOTIFICATION_SETTINGS", "NOTIFICATION_SETTINGS", notifColor),
+            new Setting("Sound & vibration", "Volume and haptics", "🔊", "SOUND_SETTINGS", "", notifColor),
+            new Setting("Display", "Brightness, dark theme", "☀️", "DISPLAY_SETTINGS", "", sysColor),
+            new Setting("Battery", "Power saver and usage", "🔋", "BATTERY_SAVER_SETTINGS", "SETTINGS", devColor),
+            new Setting("Security & Privacy", "Biometrics and screen lock", "🔒", "SECURITY_SETTINGS", "", sysColor),
+            new Setting("System Updates", "Check for OS patches", "🔄", "SYSTEM_UPDATE_SETTINGS", "DEVICE_INFO_SETTINGS", netColor)
         };
 
         LinearLayout listContainer = findViewById(R.id.list_container);
@@ -231,17 +225,16 @@ public class MainActivity extends Activity {
         });
     }
 
-    // Now accepts full custom intent strings instead of strictly appending to android.settings
     private void openSetting(String primary, String fallback) {
         try {
-            Intent intent = new Intent(primary);
+            Intent intent = new Intent("android.settings." + primary);
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             if (intent.resolveActivity(getPackageManager()) != null) {
                 startActivity(intent);
                 return;
             }
             if (!fallback.isEmpty()) {
-                Intent fallbackIntent = new Intent(fallback);
+                Intent fallbackIntent = new Intent("android.settings." + fallback);
                 fallbackIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 if (fallbackIntent.resolveActivity(getPackageManager()) != null) {
                     startActivity(fallbackIntent);
