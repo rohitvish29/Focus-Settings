@@ -4,12 +4,12 @@ import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.Settings;
+import android.webkit.JavascriptInterface;
 import android.webkit.PermissionRequest;
 import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
-import android.webkit.WebViewClient;
-import java.net.URISyntaxException;
 
 public class MainActivity extends Activity {
     private WebView webView;
@@ -27,28 +27,31 @@ public class MainActivity extends Activity {
         webView.setWebChromeClient(new WebChromeClient() {
             @Override
             public void onPermissionRequest(final PermissionRequest request) {
-                // Grant camera/flashlight permission directly to webview
                 request.grant(request.getResources());
             }
         });
 
-        webView.setWebViewClient(new WebViewClient() {
-            @Override
-            public boolean shouldOverrideUrlLoading(WebView view, String url) {
-                if (url.startsWith("intent://") || url.startsWith("intent:#Intent")) {
+        // Bridge native Android intent launcher to JavaScript
+        webView.addJavascriptInterface(new Object() {
+            @JavascriptInterface
+            public void openSetting(String action, String fallbackAction) {
+                try {
+                    Intent intent = new Intent("android.settings." + action);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    startActivity(intent);
+                } catch (Exception e) {
                     try {
-                        Intent intent = Intent.parseUri(url, Intent.URI_INTENT_SCHEME);
-                        if (intent != null) {
-                            view.getContext().startActivity(intent);
-                            return true;
+                        if (fallbackAction != null && !fallbackAction.isEmpty()) {
+                            Intent fallback = new Intent("android.settings." + fallbackAction);
+                            fallback.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                            startActivity(fallback);
                         }
-                    } catch (URISyntaxException e) {
-                        e.printStackTrace();
+                    } catch (Exception ex) {
+                        // Fallback failed
                     }
                 }
-                return false;
             }
-        });
+        }, "AndroidNative");
 
         setContentView(webView);
         webView.loadUrl("file:///android_asset/index.html");
