@@ -27,9 +27,36 @@
         android:layout_marginBottom="24dp"
         android:gravity="center">
         
-        <TextView android:id="@+id/btn_theme_sys" android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:text="System" android:textAlignment="center" android:padding="10dp" android:textStyle="bold"/>
-        <TextView android:id="@+id/btn_theme_light" android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:text="Light" android:textAlignment="center" android:padding="10dp" android:textStyle="bold" android:layout_marginHorizontal="8dp"/>
-        <TextView android:id="@+id/btn_theme_dark" android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:text="Dark" android:textAlignment="center" android:padding="10dp" android:textStyle="bold"/>
+        <TextView
+            android:id="@+id/btn_theme_sys"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:text="System"
+            android:textAlignment="center"
+            android:padding="10dp"
+            android:textStyle="bold"/>
+            
+        <TextView
+            android:id="@+id/btn_theme_light"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:text="Light"
+            android:textAlignment="center"
+            android:padding="10dp"
+            android:textStyle="bold"
+            android:layout_marginHorizontal="8dp"/>
+            
+        <TextView
+            android:id="@+id/btn_theme_dark"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:text="Dark"
+            android:textAlignment="center"
+            android:padding="10dp"
+            android:textStyle="bold"/>
     </LinearLayout>
 
     <ScrollView
@@ -43,20 +70,35 @@
             android:orientation="vertical">
 
             <LinearLayout
-                android:id="@+id/quick_panel_container"
+                android:id="@+id/quick_panel"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:layout_marginBottom="24dp"/>
-
-            <LinearLayout
-                android:id="@+id/list_container"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:paddingVertical="8dp"
-                android:layout_marginBottom="32dp"/>
+                android:orientation="horizontal"
+                android:layout_marginBottom="24dp">
                 
-        </LinearLayout>
-    </ScrollView>
-</LinearLayout>
+                <LinearLayout
+                    android:id="@+id/tile_torch"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="110dp"
+                    android:orientation="vertical"
+                    android:padding="16dp"
+                    android:layout_marginEnd="6dp"
+                    android:clickable="true"
+                    android:focusable="true">
+                    <TextView android:id="@+id/icon_torch" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="🔦" android:textSize="26sp"/>
+                    <TextView android:id="@+id/text_torch" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Flashlight" android:textStyle="bold" android:layout_marginTop="12dp"/>
+                    <TextView android:id="@+id/status_torch" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Off" android:textSize="12sp"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/tile_rotate"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="110dp"
+                    android:orientation="vertical"
+                    android:padding="16dp"
+                    android:layout_marginStart="6dp"
+                    android:clickable="true"
+                    android:focusable="true">
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="🔄" android:textSize="26sp"/>
