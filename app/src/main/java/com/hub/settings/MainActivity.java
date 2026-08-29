@@ -144,7 +144,6 @@ public class MainActivity extends Activity {
         String devColor = isDark ? "#0D381E" : "#C4EED0";   
         String notifColor = isDark ? "#5C162E" : "#F8D8E5"; 
         String sysColor = isDark ? "#593000" : "#FEEFC3";   
-        String dangerColor = isDark ? "#8C1D18" : "#F9DEDC";
 
         Setting[] allSettings = {
             new Setting("Wi-Fi & Networks", "Manage Wi-Fi connections", "🌐", "WIFI_SETTINGS", "", netColor),
@@ -156,8 +155,7 @@ public class MainActivity extends Activity {
             new Setting("Display", "Brightness, dark theme", "☀️", "DISPLAY_SETTINGS", "", sysColor),
             new Setting("Battery", "Power saver and usage", "🔋", "BATTERY_SAVER_SETTINGS", "SETTINGS", devColor),
             new Setting("Security & Privacy", "Biometrics and screen lock", "🔒", "SECURITY_SETTINGS", "", sysColor),
-            new Setting("System Updates", "Check for OS patches", "🔄", "SYSTEM_UPDATE_SETTINGS", "DEVICE_INFO_SETTINGS", netColor),
-            new Setting("Factory Reset", "Erase all device data", "⚠️", "BACKUP_AND_RESET_SETTINGS", "SETTINGS", dangerColor)
+            new Setting("System Updates", "Check for OS patches", "🔄", "SYSTEM_UPDATE_SETTINGS", "DEVICE_INFO_SETTINGS", netColor)
         };
 
         LinearLayout listContainer = findViewById(R.id.list_container);
