@@ -154,6 +154,7 @@ public class MainActivity extends Activity {
             new Setting("Sound & vibration", "Volume and haptics", "🔊", "SOUND_SETTINGS", "", notifColor),
             new Setting("Display", "Brightness, dark theme", "☀️", "DISPLAY_SETTINGS", "", sysColor),
             new Setting("Battery", "Power saver and usage", "🔋", "BATTERY_SAVER_SETTINGS", "SETTINGS", devColor),
+            // Uses standard SECURITY_SETTINGS without NEW_TASK flag
             new Setting("Security & Privacy", "Biometrics and screen lock", "🔒", "SECURITY_SETTINGS", "", sysColor),
             new Setting("System Updates", "Check for OS patches", "🔄", "SYSTEM_UPDATE_SETTINGS", "DEVICE_INFO_SETTINGS", netColor)
         };
@@ -229,17 +230,18 @@ public class MainActivity extends Activity {
         });
     }
 
+    // --- CRITICAL FIX FOR MDM BOUNCE ---
+    // Removed FLAG_ACTIVITY_NEW_TASK so MDM retains task stack ownership
     private void openSetting(String primary, String fallback) {
         try {
             Intent intent = new Intent("android.settings." + primary);
-            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            
             if (intent.resolveActivity(getPackageManager()) != null) {
                 startActivity(intent);
                 return;
             }
             if (!fallback.isEmpty()) {
                 Intent fallbackIntent = new Intent("android.settings." + fallback);
-                fallbackIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 if (fallbackIntent.resolveActivity(getPackageManager()) != null) {
                     startActivity(fallbackIntent);
                 }
