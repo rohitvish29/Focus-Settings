@@ -1,6 +1,7 @@
 package com.hub.settings;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -9,13 +10,19 @@ import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.GradientDrawable;
 import android.hardware.camera2.CameraManager;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.Gravity;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -29,13 +36,15 @@ public class MainActivity extends Activity {
 
     static class Setting {
         String title, desc, icon, colorHex;
+        String type; // "INTENT", "BRIGHTNESS", "TIMEOUT"
         String[] intentActions;
         
-        Setting(String t, String d, String i, String c, String... actions) {
+        Setting(String t, String d, String i, String c, String type, String... actions) {
             this.title = t; 
             this.desc = d; 
             this.icon = i; 
             this.colorHex = c;
+            this.type = type;
             this.intentActions = actions; 
         }
     }
@@ -114,9 +123,7 @@ public class MainActivity extends Activity {
             if (cameraManager.getCameraIdList().length > 0) {
                 cameraId = cameraManager.getCameraIdList()[0];
             }
-        } catch (Exception e) { 
-            e.printStackTrace(); 
-        }
+        } catch (Exception e) {}
 
         findViewById(R.id.tile_torch).setOnClickListener(v -> {
             try {
@@ -136,7 +143,7 @@ public class MainActivity extends Activity {
         });
 
         findViewById(R.id.tile_rotate).setOnClickListener(v -> 
-            openSetting(new String[]{"AUTO_ROTATE_SETTINGS", "DISPLAY_SETTINGS"})
+            openSettingIntent(new String[]{"AUTO_ROTATE_SETTINGS"})
         );
     }
 
@@ -147,29 +154,22 @@ public class MainActivity extends Activity {
         String sysColor = isDark ? "#593000" : "#FEEFC3";   
 
         Setting[] allSettings = {
-            new Setting("Wi-Fi & Networks", "Manage Wi-Fi connections", "🌐", netColor, "WIFI_SETTINGS"),
-            new Setting("Mobile Hotspot", "Share network via tethering", "🛜", netColor, "TETHER_SETTINGS", "WIRELESS_SETTINGS"),
-            
-            // --- EXPANDED DATA SETTINGS WITH MULTIPLE INTENT FALLBACKS ---
-            new Setting("Mobile Data", "Turn mobile data on/off", "📶", netColor, 
+            new Setting("Wi-Fi & Networks", "Manage Wi-Fi connections", "🌐", netColor, "INTENT", "WIFI_SETTINGS"),
+            new Setting("Mobile Hotspot", "Share network via tethering", "🛜", netColor, "INTENT", "TETHER_SETTINGS", "WIRELESS_SETTINGS"),
+            new Setting("Mobile Data", "Turn mobile data on/off", "📶", netColor, "INTENT", 
                 "DATA_ROAMING_SETTINGS", "NETWORK_OPERATOR_SETTINGS", "DATA_USAGE_SETTINGS", "WIRELESS_SETTINGS"),
-            new Setting("Data Usage", "View data activity and limits", "📊", netColor, 
-                "DATA_USAGE_SETTINGS", "IGNORE_BACKGROUND_DATA_RESTRICTIONS_SETTINGS", "WIRELESS_SETTINGS"),
-            new Setting("Mobile Network", "Carrier and SIM settings", "📡", netColor, 
-                "NETWORK_OPERATOR_SETTINGS", "DATA_ROAMING_SETTINGS", "WIRELESS_SETTINGS", "DATA_USAGE_SETTINGS"),
-            // -------------------------------------------------------------
+            new Setting("Connected devices", "Bluetooth, pairing", "🔵", devColor, "INTENT", "BLUETOOTH_SETTINGS"),
             
-            new Setting("Connected devices", "Bluetooth, pairing", "🔵", devColor, "BLUETOOTH_SETTINGS"),
+            // --- IN-APP DISPLAY CONTROLS (NO SAMSUNG PAGE) ---
+            new Setting("Screen Brightness", "Adjust backlight intensity", "☀️", sysColor, "BRIGHTNESS"),
+            new Setting("Screen Timeout", "Change auto-lock time", "⏱️", sysColor, "TIMEOUT"),
+            // -------------------------------------------------
             
-            // --- REVERTED DISPLAY SETTING ---
-            new Setting("Display", "Brightness, dark theme, timeout", "☀️", sysColor, "DISPLAY_SETTINGS"),
-            // --------------------------------
-            
-            new Setting("Notifications", "Notification history, alerts", "🔔", notifColor, "ALL_APPS_NOTIFICATION_SETTINGS", "NOTIFICATION_SETTINGS"),
-            new Setting("Sound & vibration", "Volume and haptics", "🔊", notifColor, "SOUND_SETTINGS"),
-            new Setting("Battery", "Power saver and usage", "🔋", devColor, "BATTERY_SAVER_SETTINGS", "SETTINGS"),
-            new Setting("Security & Privacy", "Biometrics and screen lock", "🔒", sysColor, "SECURITY_SETTINGS"),
-            new Setting("System Updates", "Check for OS patches", "🔄", netColor, "SYSTEM_UPDATE_SETTINGS", "DEVICE_INFO_SETTINGS")
+            new Setting("Notifications", "Notification history, alerts", "🔔", notifColor, "INTENT", "ALL_APPS_NOTIFICATION_SETTINGS", "NOTIFICATION_SETTINGS"),
+            new Setting("Sound & vibration", "Volume and haptics", "🔊", notifColor, "INTENT", "SOUND_SETTINGS"),
+            new Setting("Battery", "Power saver and usage", "🔋", devColor, "INTENT", "BATTERY_SAVER_SETTINGS", "SETTINGS"),
+            new Setting("Security & Privacy", "Biometrics and screen lock", "🔒", sysColor, "INTENT", "SECURITY_SETTINGS"),
+            new Setting("System Updates", "Check for OS patches", "🔄", netColor, "INTENT", "SYSTEM_UPDATE_SETTINGS", "DEVICE_INFO_SETTINGS")
         };
 
         LinearLayout listContainer = findViewById(R.id.list_container);
@@ -217,7 +217,7 @@ public class MainActivity extends Activity {
             textBlock.addView(desc);
             
             row.addView(textBlock);
-            row.setOnClickListener(v -> openSetting(s.intentActions));
+            row.setOnClickListener(v -> handleSettingClick(s));
             listContainer.addView(row);
         }
     }
@@ -243,19 +243,109 @@ public class MainActivity extends Activity {
         });
     }
 
-    private void openSetting(String[] intentActions) {
+    // Handles which action to take based on the setting type
+    private void handleSettingClick(Setting s) {
+        if ("BRIGHTNESS".equals(s.type)) {
+            if (hasWritePermission()) showBrightnessDialog();
+        } else if ("TIMEOUT".equals(s.type)) {
+            if (hasWritePermission()) showTimeoutDialog();
+        } else {
+            openSettingIntent(s.intentActions);
+        }
+    }
+
+    // MDM-safe Intent launcher
+    private void openSettingIntent(String[] intentActions) {
         for (String action : intentActions) {
             try {
                 Intent intent = new Intent("android.settings." + action);
-                
                 if (intent.resolveActivity(getPackageManager()) != null) {
                     startActivity(intent);
                     return; 
                 }
-            } catch (Exception e) { 
-                e.printStackTrace(); 
+            } catch (Exception e) {}
+        }
+        Toast.makeText(this, "Setting not available directly", Toast.LENGTH_SHORT).show();
+    }
+
+    // Check for System Write Permission
+    private boolean hasWritePermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (!Settings.System.canWrite(this)) {
+                Toast.makeText(this, "Please allow permission to modify settings", Toast.LENGTH_LONG).show();
+                Intent intent = new Intent(Settings.ACTION_MANAGE_WRITE_SETTINGS);
+                intent.setData(Uri.parse("package:" + getPackageName()));
+                startActivity(intent);
+                return false;
             }
         }
-        Toast.makeText(this, "Setting not available directly on this device", Toast.LENGTH_SHORT).show();
+        return true;
+    }
+
+    // 1. In-App Brightness Slider
+    private void showBrightnessDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Screen Brightness");
+
+        LinearLayout layout = new LinearLayout(this);
+        layout.setPadding(60, 50, 60, 50);
+
+        SeekBar seekBar = new SeekBar(this);
+        seekBar.setMax(255);
+        try {
+            int currentBrightness = Settings.System.getInt(getContentResolver(), Settings.System.SCREEN_BRIGHTNESS);
+            seekBar.setProgress(currentBrightness);
+        } catch (Settings.SettingNotFoundException e) {}
+
+        seekBar.setLayoutParams(new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+
+        seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                if (progress < 10) progress = 10; // Prevent completely black screen
+                Settings.System.putInt(getContentResolver(), Settings.System.SCREEN_BRIGHTNESS, progress);
+                
+                // Instantly update current screen brightness
+                WindowManager.LayoutParams layoutParams = getWindow().getAttributes();
+                layoutParams.screenBrightness = progress / 255.0f;
+                getWindow().setAttributes(layoutParams);
+            }
+            @Override public void onStartTrackingTouch(SeekBar seekBar) {}
+            @Override public void onStopTrackingTouch(SeekBar seekBar) {}
+        });
+
+        layout.addView(seekBar);
+        builder.setView(layout);
+        builder.setPositiveButton("Close", null);
+        builder.show();
+    }
+
+    // 2. In-App Screen Timeout Menu
+    private void showTimeoutDialog() {
+        final String[] timeNames = {"15 Seconds", "30 Seconds", "1 Minute", "2 Minutes", "5 Minutes", "10 Minutes"};
+        final int[] timeValues = {15000, 30000, 60000, 120000, 300000, 600000};
+
+        int currentTimeout = 30000;
+        try {
+            currentTimeout = Settings.System.getInt(getContentResolver(), Settings.System.SCREEN_OFF_TIMEOUT);
+        } catch (Settings.SettingNotFoundException e) {}
+
+        int selectedIndex = 1;
+        for (int i = 0; i < timeValues.length; i++) {
+            if (currentTimeout == timeValues[i]) {
+                selectedIndex = i;
+                break;
+            }
+        }
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Screen Timeout");
+        builder.setSingleChoiceItems(timeNames, selectedIndex, (dialog, which) -> {
+            Settings.System.putInt(getContentResolver(), Settings.System.SCREEN_OFF_TIMEOUT, timeValues[which]);
+            Toast.makeText(this, "Timeout set to " + timeNames[which], Toast.LENGTH_SHORT).show();
+            dialog.dismiss();
+        });
+        builder.show();
     }
 }
