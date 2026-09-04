@@ -36,7 +36,7 @@ public class MainActivity extends Activity {
 
     static class Setting {
         String title, desc, icon, colorHex;
-        String type; // "INTENT", "BRIGHTNESS", "TIMEOUT"
+        String type; // "INTENT", "BRIGHTNESS", "TIMEOUT", "ADAPTIVE"
         String[] intentActions;
         
         Setting(String t, String d, String i, String c, String type, String... actions) {
@@ -158,12 +158,19 @@ public class MainActivity extends Activity {
             new Setting("Mobile Hotspot", "Share network via tethering", "🛜", netColor, "INTENT", "TETHER_SETTINGS", "WIRELESS_SETTINGS"),
             new Setting("Mobile Data", "Turn mobile data on/off", "📶", netColor, "INTENT", 
                 "DATA_ROAMING_SETTINGS", "NETWORK_OPERATOR_SETTINGS", "DATA_USAGE_SETTINGS", "WIRELESS_SETTINGS"),
+            new Setting("Data Usage", "View data activity and limits", "📊", netColor, "INTENT",
+                "DATA_USAGE_SETTINGS", "IGNORE_BACKGROUND_DATA_RESTRICTIONS_SETTINGS", "WIRELESS_SETTINGS"),
             new Setting("Connected devices", "Bluetooth, pairing", "🔵", devColor, "INTENT", "BLUETOOTH_SETTINGS"),
             
-            // --- IN-APP DISPLAY CONTROLS (NO SAMSUNG PAGE) ---
-            new Setting("Screen Brightness", "Adjust backlight intensity", "☀️", sysColor, "BRIGHTNESS"),
+            // --- NEW INDIVIDUAL DISPLAY CONTROLS ---
+            new Setting("Dark / Light Mode", "Change system theme", "🌗", sysColor, "INTENT", "DARK_THEME_SETTINGS"),
+            new Setting("Screen Brightness", "Manual brightness slider", "☀️", sysColor, "BRIGHTNESS"),
+            new Setting("Adaptive Brightness", "Turn auto brightness ON/OFF", "🌤️", sysColor, "ADAPTIVE"),
+            new Setting("Eye Comfort Shield", "Blue light filter", "👁️", sysColor, "INTENT", "NIGHT_DISPLAY_SETTINGS"),
+            new Setting("Font Size & Style", "Adjust text appearance", "🔤", sysColor, "INTENT", "TEXT_READING_SETTINGS"),
+            new Setting("Screen Zoom", "Adjust display scaling", "🔍", sysColor, "INTENT", "DISPLAY_SETTINGS"), 
             new Setting("Screen Timeout", "Change auto-lock time", "⏱️", sysColor, "TIMEOUT"),
-            // -------------------------------------------------
+            // ----------------------------------------
             
             new Setting("Notifications", "Notification history, alerts", "🔔", notifColor, "INTENT", "ALL_APPS_NOTIFICATION_SETTINGS", "NOTIFICATION_SETTINGS"),
             new Setting("Sound & vibration", "Volume and haptics", "🔊", notifColor, "INTENT", "SOUND_SETTINGS"),
@@ -249,6 +256,8 @@ public class MainActivity extends Activity {
             if (hasWritePermission()) showBrightnessDialog();
         } else if ("TIMEOUT".equals(s.type)) {
             if (hasWritePermission()) showTimeoutDialog();
+        } else if ("ADAPTIVE".equals(s.type)) {
+            if (hasWritePermission()) toggleAdaptiveBrightness();
         } else {
             openSettingIntent(s.intentActions);
         }
@@ -265,14 +274,15 @@ public class MainActivity extends Activity {
                 }
             } catch (Exception e) {}
         }
-        Toast.makeText(this, "Setting not available directly", Toast.LENGTH_SHORT).show();
+        // Instead of opening the main display page, we just show a toast to keep it safe.
+        Toast.makeText(this, "Direct setting not supported on this specific phone", Toast.LENGTH_SHORT).show();
     }
 
     // Check for System Write Permission
     private boolean hasWritePermission() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (!Settings.System.canWrite(this)) {
-                Toast.makeText(this, "Please allow permission to modify settings", Toast.LENGTH_LONG).show();
+                Toast.makeText(this, "Please allow permission to modify system settings", Toast.LENGTH_LONG).show();
                 Intent intent = new Intent(Settings.ACTION_MANAGE_WRITE_SETTINGS);
                 intent.setData(Uri.parse("package:" + getPackageName()));
                 startActivity(intent);
@@ -303,10 +313,9 @@ public class MainActivity extends Activity {
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                if (progress < 10) progress = 10; // Prevent completely black screen
+                if (progress < 10) progress = 10; 
                 Settings.System.putInt(getContentResolver(), Settings.System.SCREEN_BRIGHTNESS, progress);
                 
-                // Instantly update current screen brightness
                 WindowManager.LayoutParams layoutParams = getWindow().getAttributes();
                 layoutParams.screenBrightness = progress / 255.0f;
                 getWindow().setAttributes(layoutParams);
@@ -321,7 +330,24 @@ public class MainActivity extends Activity {
         builder.show();
     }
 
-    // 2. In-App Screen Timeout Menu
+    // 2. In-App Adaptive Brightness Toggle
+    private void toggleAdaptiveBrightness() {
+        try {
+            int currentMode = Settings.System.getInt(getContentResolver(), Settings.System.SCREEN_BRIGHTNESS_MODE);
+            int newMode = (currentMode == Settings.System.SCREEN_BRIGHTNESS_MODE_AUTOMATIC) 
+                    ? Settings.System.SCREEN_BRIGHTNESS_MODE_MANUAL 
+                    : Settings.System.SCREEN_BRIGHTNESS_MODE_AUTOMATIC;
+            
+            Settings.System.putInt(getContentResolver(), Settings.System.SCREEN_BRIGHTNESS_MODE, newMode);
+            
+            String status = (newMode == Settings.System.SCREEN_BRIGHTNESS_MODE_AUTOMATIC) ? "ON" : "OFF";
+            Toast.makeText(this, "Adaptive Brightness turned " + status, Toast.LENGTH_SHORT).show();
+        } catch (Settings.SettingNotFoundException e) {
+            Toast.makeText(this, "Feature not supported", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    // 3. In-App Screen Timeout Menu
     private void showTimeoutDialog() {
         final String[] timeNames = {"15 Seconds", "30 Seconds", "1 Minute", "2 Minutes", "5 Minutes", "10 Minutes"};
         final int[] timeValues = {15000, 30000, 60000, 120000, 300000, 600000};
