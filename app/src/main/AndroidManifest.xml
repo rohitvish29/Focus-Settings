@@ -15,46 +15,16 @@
         android:icon="@drawable/ic_launcher"
         android:label="Settings Hub"
         android:theme="@android:style/Theme.DeviceDefault.Light.NoActionBar">
+        
         <activity
             android:name=".MainActivity"
             android:exported="true">
-            
-            <!-- Launcher Intent -->
+            <!-- सिर्फ लॉन्चर इंटेंट (App Icon दिखाने के लिए) -->
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-            
-            <!-- Intercept Display Settings -->
-            <intent-filter>
-                <action android:name="android.settings.DISPLAY_SETTINGS" />
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-
-            <!-- Intercept Data Usage Settings -->
-            <intent-filter>
-                <action android:name="android.settings.DATA_USAGE_SETTINGS" />
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-
-            <!-- Intercept Data Roaming Settings -->
-            <intent-filter>
-                <action android:name="android.settings.DATA_ROAMING_SETTINGS" />
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-
-            <!-- Intercept Network Operator Settings -->
-            <intent-filter>
-                <action android:name="android.settings.NETWORK_OPERATOR_SETTINGS" />
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-
-            <!-- Intercept Wireless Settings -->
-            <intent-filter>
-                <action android:name="android.settings.WIRELESS_SETTINGS" />
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-
         </activity>
+
     </application>
 </manifest>
