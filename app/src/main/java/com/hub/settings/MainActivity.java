@@ -2,9 +2,11 @@ package com.hub.settings;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.UiModeManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.graphics.Color;
 import android.graphics.Typeface;
@@ -36,7 +38,7 @@ public class MainActivity extends Activity {
 
     static class Setting {
         String title, desc, icon, colorHex;
-        String type; // "INTENT", "BRIGHTNESS", "TIMEOUT", "ADAPTIVE"
+        String type; // "INTENT", "BRIGHTNESS", "TIMEOUT", "ADAPTIVE", "DARK_MODE"
         String[] intentActions;
         
         Setting(String t, String d, String i, String c, String type, String... actions) {
@@ -153,22 +155,25 @@ public class MainActivity extends Activity {
         String notifColor = isDark ? "#5C162E" : "#F8D8E5"; 
         String sysColor = isDark ? "#593000" : "#FEEFC3";   
 
-        // NOTE: Screen Zoom & Dark Mode are removed as requested.
         Setting[] allSettings = {
             new Setting("Wi-Fi & Networks", "Manage Wi-Fi connections", "🌐", netColor, "INTENT", "WIFI_SETTINGS"),
             new Setting("Mobile Hotspot", "Share network via tethering", "🛜", netColor, "INTENT", "TETHER_SETTINGS", "WIRELESS_SETTINGS"),
+            
+            // Multiple intents grouped for best compatibility across devices
             new Setting("Mobile Data", "Turn mobile data on/off", "📶", netColor, "INTENT", 
                 "DATA_ROAMING_SETTINGS", "NETWORK_OPERATOR_SETTINGS", "DATA_USAGE_SETTINGS", "WIRELESS_SETTINGS"),
             new Setting("Data Usage", "View data activity and limits", "📊", netColor, "INTENT",
                 "DATA_USAGE_SETTINGS", "IGNORE_BACKGROUND_DATA_RESTRICTIONS_SETTINGS", "WIRELESS_SETTINGS"),
+                
             new Setting("Connected devices", "Bluetooth, pairing", "🔵", devColor, "INTENT", "BLUETOOTH_SETTINGS"),
             
-            // --- IN-APP DISPLAY CONTROLS (NO SAMSUNG PAGE) ---
+            // --- IN-APP DISPLAY CONTROLS ---
+            new Setting("Dark / Light Mode", "Change system theme", "🌗", sysColor, "DARK_MODE"),
             new Setting("Screen Brightness", "Manual brightness slider", "☀️", sysColor, "BRIGHTNESS"),
             new Setting("Adaptive Brightness", "Turn auto brightness ON/OFF", "🌤️", sysColor, "ADAPTIVE"),
             new Setting("Screen Timeout", "Change auto-lock time", "⏱️", sysColor, "TIMEOUT"),
-            // -------------------------------------------------
             
+            // --- SAFE DISPLAY INTENTS ---
             new Setting("Eye Comfort Shield", "Blue light filter", "👁️", sysColor, "INTENT", "NIGHT_DISPLAY_SETTINGS"),
             new Setting("Font Size & Style", "Adjust text appearance", "🔤", sysColor, "INTENT", "TEXT_READING_SETTINGS"),
             
@@ -250,7 +255,6 @@ public class MainActivity extends Activity {
         });
     }
 
-    // Handles which action to take based on the setting type
     private void handleSettingClick(Setting s) {
         if ("BRIGHTNESS".equals(s.type)) {
             if (hasWritePermission()) showBrightnessDialog();
@@ -258,12 +262,13 @@ public class MainActivity extends Activity {
             if (hasWritePermission()) showTimeoutDialog();
         } else if ("ADAPTIVE".equals(s.type)) {
             if (hasWritePermission()) toggleAdaptiveBrightness();
+        } else if ("DARK_MODE".equals(s.type)) {
+            toggleSystemDarkMode();
         } else {
             openSettingIntent(s.intentActions);
         }
     }
 
-    // MDM-safe Intent launcher
     private void openSettingIntent(String[] intentActions) {
         for (String action : intentActions) {
             try {
@@ -274,10 +279,10 @@ public class MainActivity extends Activity {
                 }
             } catch (Exception e) {}
         }
-        Toast.makeText(this, "Direct setting not supported on this phone", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, "Direct setting not supported on this device", Toast.LENGTH_SHORT).show();
     }
 
-    // Check for System Write Permission (Standard user prompt, no MDM command needed)
+    // Checking for standard system write permission (Brightness/Timeout)
     private boolean hasWritePermission() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (!Settings.System.canWrite(this)) {
@@ -291,7 +296,27 @@ public class MainActivity extends Activity {
         return true;
     }
 
-    // 1. In-App Brightness Slider
+    // Checking and toggling Dark Mode via MDM Secure Settings permission
+    private void toggleSystemDarkMode() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (checkSelfPermission(android.Manifest.permission.WRITE_SECURE_SETTINGS) == PackageManager.PERMISSION_GRANTED) {
+                try {
+                    UiModeManager uiManager = (UiModeManager) getSystemService(Context.UI_MODE_SERVICE);
+                    if (uiManager != null) {
+                        int currentMode = uiManager.getNightMode();
+                        int newMode = (currentMode == UiModeManager.MODE_NIGHT_YES) ? UiModeManager.MODE_NIGHT_NO : UiModeManager.MODE_NIGHT_YES;
+                        uiManager.setNightMode(newMode);
+                        Toast.makeText(this, "System Theme Changed", Toast.LENGTH_SHORT).show();
+                    }
+                } catch (Exception e) {
+                    Toast.makeText(this, "Failed to change theme", Toast.LENGTH_SHORT).show();
+                }
+            } else {
+                Toast.makeText(this, "MDM Permission Required: WRITE_SECURE_SETTINGS", Toast.LENGTH_LONG).show();
+            }
+        }
+    }
+
     private void showBrightnessDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Screen Brightness");
@@ -329,7 +354,6 @@ public class MainActivity extends Activity {
         builder.show();
     }
 
-    // 2. In-App Adaptive Brightness Toggle
     private void toggleAdaptiveBrightness() {
         try {
             int currentMode = Settings.System.getInt(getContentResolver(), Settings.System.SCREEN_BRIGHTNESS_MODE);
@@ -346,7 +370,6 @@ public class MainActivity extends Activity {
         }
     }
 
-    // 3. In-App Screen Timeout Menu
     private void showTimeoutDialog() {
         final String[] timeNames = {"15 Seconds", "30 Seconds", "1 Minute", "2 Minutes", "5 Minutes", "10 Minutes"};
         final int[] timeValues = {15000, 30000, 60000, 120000, 300000, 600000};
