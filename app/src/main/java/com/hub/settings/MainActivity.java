@@ -157,14 +157,15 @@ public class MainActivity extends Activity {
 
         Setting[] allSettings = {
             new Setting("Wi-Fi & Networks", "Manage Wi-Fi connections", "🌐", netColor, "INTENT", "WIFI_SETTINGS"),
-            new Setting("Mobile Hotspot", "Share network via tethering", "🛜", netColor, "INTENT", "TETHER_SETTINGS", "WIRELESS_SETTINGS"),
+            new Setting("Mobile Hotspot", "Share network via tethering", "🛜", netColor, "INTENT", "TETHER_SETTINGS"),
             
-            // Multiple intents grouped for best compatibility across devices
-            new Setting("Mobile Data", "Turn mobile data on/off", "📶", netColor, "INTENT", 
-                "DATA_ROAMING_SETTINGS", "NETWORK_OPERATOR_SETTINGS", "DATA_USAGE_SETTINGS", "WIRELESS_SETTINGS"),
-            new Setting("Data Usage", "View data activity and limits", "📊", netColor, "INTENT",
-                "DATA_USAGE_SETTINGS", "IGNORE_BACKGROUND_DATA_RESTRICTIONS_SETTINGS", "WIRELESS_SETTINGS"),
-                
+            // --- NEW: Network Intents added as separate list items ---
+            new Setting("Data Usage", "View data activity and limits", "📊", netColor, "INTENT", "DATA_USAGE_SETTINGS"),
+            new Setting("Data Roaming", "Manage roaming networks", "🌍", netColor, "INTENT", "DATA_ROAMING_SETTINGS"),
+            new Setting("Network Operator", "Select network provider", "📡", netColor, "INTENT", "NETWORK_OPERATOR_SETTINGS"),
+            new Setting("Wireless Settings", "Advanced wireless options", "📶", netColor, "INTENT", "WIRELESS_SETTINGS"),
+            // ---------------------------------------------------------
+
             new Setting("Connected devices", "Bluetooth, pairing", "🔵", devColor, "INTENT", "BLUETOOTH_SETTINGS"),
             
             // --- IN-APP DISPLAY CONTROLS ---
@@ -282,7 +283,6 @@ public class MainActivity extends Activity {
         Toast.makeText(this, "Direct setting not supported on this device", Toast.LENGTH_SHORT).show();
     }
 
-    // Checking for standard system write permission (Brightness/Timeout)
     private boolean hasWritePermission() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (!Settings.System.canWrite(this)) {
@@ -296,7 +296,6 @@ public class MainActivity extends Activity {
         return true;
     }
 
-    // Checking and toggling Dark Mode via MDM Secure Settings permission
     private void toggleSystemDarkMode() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (checkSelfPermission(android.Manifest.permission.WRITE_SECURE_SETTINGS) == PackageManager.PERMISSION_GRANTED) {
