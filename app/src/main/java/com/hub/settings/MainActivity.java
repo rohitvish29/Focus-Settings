@@ -2,11 +2,9 @@ package com.hub.settings;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.UiModeManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.graphics.Color;
 import android.graphics.Typeface;
@@ -38,7 +36,7 @@ public class MainActivity extends Activity {
 
     static class Setting {
         String title, desc, icon, colorHex;
-        String type; // "INTENT", "BRIGHTNESS", "TIMEOUT", "ADAPTIVE", "DARK_MODE"
+        String type; // "INTENT", "BRIGHTNESS", "TIMEOUT", "ADAPTIVE"
         String[] intentActions;
         
         Setting(String t, String d, String i, String c, String type, String... actions) {
@@ -159,17 +157,19 @@ public class MainActivity extends Activity {
             new Setting("Wi-Fi & Networks", "Manage Wi-Fi connections", "🌐", netColor, "INTENT", "WIFI_SETTINGS"),
             new Setting("Mobile Hotspot", "Share network via tethering", "🛜", netColor, "INTENT", "TETHER_SETTINGS"),
             
-            // --- NEW: Network Intents added as separate list items ---
+            // Network Intents 
             new Setting("Data Usage", "View data activity and limits", "📊", netColor, "INTENT", "DATA_USAGE_SETTINGS"),
             new Setting("Data Roaming", "Manage roaming networks", "🌍", netColor, "INTENT", "DATA_ROAMING_SETTINGS"),
             new Setting("Network Operator", "Select network provider", "📡", netColor, "INTENT", "NETWORK_OPERATOR_SETTINGS"),
             new Setting("Wireless Settings", "Advanced wireless options", "📶", netColor, "INTENT", "WIRELESS_SETTINGS"),
-            // ---------------------------------------------------------
-
+            
             new Setting("Connected devices", "Bluetooth, pairing", "🔵", devColor, "INTENT", "BLUETOOTH_SETTINGS"),
             
+            // --- NEW: Display and Accounts Intents ---
+            new Setting("Display Settings", "Screen, brightness & themes", "📱", sysColor, "INTENT", "DISPLAY_SETTINGS"),
+            new Setting("Accounts", "Manage accounts and sync", "👤", devColor, "INTENT", "SYNC_SETTINGS"),
+            
             // --- IN-APP DISPLAY CONTROLS ---
-            new Setting("Dark / Light Mode", "Change system theme", "🌗", sysColor, "DARK_MODE"),
             new Setting("Screen Brightness", "Manual brightness slider", "☀️", sysColor, "BRIGHTNESS"),
             new Setting("Adaptive Brightness", "Turn auto brightness ON/OFF", "🌤️", sysColor, "ADAPTIVE"),
             new Setting("Screen Timeout", "Change auto-lock time", "⏱️", sysColor, "TIMEOUT"),
@@ -263,8 +263,6 @@ public class MainActivity extends Activity {
             if (hasWritePermission()) showTimeoutDialog();
         } else if ("ADAPTIVE".equals(s.type)) {
             if (hasWritePermission()) toggleAdaptiveBrightness();
-        } else if ("DARK_MODE".equals(s.type)) {
-            toggleSystemDarkMode();
         } else {
             openSettingIntent(s.intentActions);
         }
@@ -294,26 +292,6 @@ public class MainActivity extends Activity {
             }
         }
         return true;
-    }
-
-    private void toggleSystemDarkMode() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            if (checkSelfPermission(android.Manifest.permission.WRITE_SECURE_SETTINGS) == PackageManager.PERMISSION_GRANTED) {
-                try {
-                    UiModeManager uiManager = (UiModeManager) getSystemService(Context.UI_MODE_SERVICE);
-                    if (uiManager != null) {
-                        int currentMode = uiManager.getNightMode();
-                        int newMode = (currentMode == UiModeManager.MODE_NIGHT_YES) ? UiModeManager.MODE_NIGHT_NO : UiModeManager.MODE_NIGHT_YES;
-                        uiManager.setNightMode(newMode);
-                        Toast.makeText(this, "System Theme Changed", Toast.LENGTH_SHORT).show();
-                    }
-                } catch (Exception e) {
-                    Toast.makeText(this, "Failed to change theme", Toast.LENGTH_SHORT).show();
-                }
-            } else {
-                Toast.makeText(this, "MDM Permission Required: WRITE_SECURE_SETTINGS", Toast.LENGTH_LONG).show();
-            }
-        }
     }
 
     private void showBrightnessDialog() {
