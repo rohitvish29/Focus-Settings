@@ -153,6 +153,7 @@ public class MainActivity extends Activity {
         String notifColor = isDark ? "#5C162E" : "#F8D8E5"; 
         String sysColor = isDark ? "#593000" : "#FEEFC3";   
 
+        // NOTE: Screen Zoom & Dark Mode are removed as requested.
         Setting[] allSettings = {
             new Setting("Wi-Fi & Networks", "Manage Wi-Fi connections", "🌐", netColor, "INTENT", "WIFI_SETTINGS"),
             new Setting("Mobile Hotspot", "Share network via tethering", "🛜", netColor, "INTENT", "TETHER_SETTINGS", "WIRELESS_SETTINGS"),
@@ -162,15 +163,14 @@ public class MainActivity extends Activity {
                 "DATA_USAGE_SETTINGS", "IGNORE_BACKGROUND_DATA_RESTRICTIONS_SETTINGS", "WIRELESS_SETTINGS"),
             new Setting("Connected devices", "Bluetooth, pairing", "🔵", devColor, "INTENT", "BLUETOOTH_SETTINGS"),
             
-            // --- NEW INDIVIDUAL DISPLAY CONTROLS ---
-            new Setting("Dark / Light Mode", "Change system theme", "🌗", sysColor, "INTENT", "DARK_THEME_SETTINGS"),
+            // --- IN-APP DISPLAY CONTROLS (NO SAMSUNG PAGE) ---
             new Setting("Screen Brightness", "Manual brightness slider", "☀️", sysColor, "BRIGHTNESS"),
             new Setting("Adaptive Brightness", "Turn auto brightness ON/OFF", "🌤️", sysColor, "ADAPTIVE"),
+            new Setting("Screen Timeout", "Change auto-lock time", "⏱️", sysColor, "TIMEOUT"),
+            // -------------------------------------------------
+            
             new Setting("Eye Comfort Shield", "Blue light filter", "👁️", sysColor, "INTENT", "NIGHT_DISPLAY_SETTINGS"),
             new Setting("Font Size & Style", "Adjust text appearance", "🔤", sysColor, "INTENT", "TEXT_READING_SETTINGS"),
-            new Setting("Screen Zoom", "Adjust display scaling", "🔍", sysColor, "INTENT", "DISPLAY_SETTINGS"), 
-            new Setting("Screen Timeout", "Change auto-lock time", "⏱️", sysColor, "TIMEOUT"),
-            // ----------------------------------------
             
             new Setting("Notifications", "Notification history, alerts", "🔔", notifColor, "INTENT", "ALL_APPS_NOTIFICATION_SETTINGS", "NOTIFICATION_SETTINGS"),
             new Setting("Sound & vibration", "Volume and haptics", "🔊", notifColor, "INTENT", "SOUND_SETTINGS"),
@@ -274,15 +274,14 @@ public class MainActivity extends Activity {
                 }
             } catch (Exception e) {}
         }
-        // Instead of opening the main display page, we just show a toast to keep it safe.
-        Toast.makeText(this, "Direct setting not supported on this specific phone", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, "Direct setting not supported on this phone", Toast.LENGTH_SHORT).show();
     }
 
-    // Check for System Write Permission
+    // Check for System Write Permission (Standard user prompt, no MDM command needed)
     private boolean hasWritePermission() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (!Settings.System.canWrite(this)) {
-                Toast.makeText(this, "Please allow permission to modify system settings", Toast.LENGTH_LONG).show();
+                Toast.makeText(this, "Please allow permission to modify settings", Toast.LENGTH_LONG).show();
                 Intent intent = new Intent(Settings.ACTION_MANAGE_WRITE_SETTINGS);
                 intent.setData(Uri.parse("package:" + getPackageName()));
                 startActivity(intent);
