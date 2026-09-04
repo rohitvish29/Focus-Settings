@@ -27,15 +27,17 @@ public class MainActivity extends Activity {
     private SharedPreferences prefs;
     private boolean isDark;
 
+    // UPGRADED: Ab yeh kitne bhi intents (fallbacks) ek sath le sakta hai
     static class Setting {
-        String title, desc, icon, primary, fallback, colorHex;
-        Setting(String t, String d, String i, String p, String f, String c) {
+        String title, desc, icon, colorHex;
+        String[] intentActions;
+        
+        Setting(String t, String d, String i, String c, String... actions) {
             this.title = t; 
             this.desc = d; 
             this.icon = i; 
-            this.primary = p; 
-            this.fallback = f; 
             this.colorHex = c;
+            this.intentActions = actions; // Array of multiple intents
         }
     }
 
@@ -134,8 +136,9 @@ public class MainActivity extends Activity {
             }
         });
 
+        // Use array format for Auto Rotate
         findViewById(R.id.tile_rotate).setOnClickListener(v -> 
-            openSetting("AUTO_ROTATE_SETTINGS", "DISPLAY_SETTINGS")
+            openSetting(new String[]{"AUTO_ROTATE_SETTINGS", "DISPLAY_SETTINGS"})
         );
     }
 
@@ -146,17 +149,26 @@ public class MainActivity extends Activity {
         String sysColor = isDark ? "#593000" : "#FEEFC3";   
 
         Setting[] allSettings = {
-            new Setting("Wi-Fi & Networks", "Manage Wi-Fi connections", "🌐", "WIFI_SETTINGS", "", netColor),
-            new Setting("Mobile Hotspot", "Share network via tethering", "🛜", "TETHER_SETTINGS", "WIRELESS_SETTINGS", netColor),
-            new Setting("Mobile Data", "Data usage and toggle", "📶", "DATA_USAGE_SETTINGS", "NETWORK_OPERATOR_SETTINGS", netColor),
-            new Setting("Connected devices", "Bluetooth, pairing", "🔵", "BLUETOOTH_SETTINGS", "", devColor),
-            new Setting("Notifications", "Notification history, alerts", "🔔", "ALL_APPS_NOTIFICATION_SETTINGS", "NOTIFICATION_SETTINGS", notifColor),
-            new Setting("Sound & vibration", "Volume and haptics", "🔊", "SOUND_SETTINGS", "", notifColor),
-            new Setting("Display", "Brightness, dark theme", "☀️", "DISPLAY_SETTINGS", "", sysColor),
-            new Setting("Battery", "Power saver and usage", "🔋", "BATTERY_SAVER_SETTINGS", "SETTINGS", devColor),
-            // Uses standard SECURITY_SETTINGS without NEW_TASK flag
-            new Setting("Security & Privacy", "Biometrics and screen lock", "🔒", "SECURITY_SETTINGS", "", sysColor),
-            new Setting("System Updates", "Check for OS patches", "🔄", "SYSTEM_UPDATE_SETTINGS", "DEVICE_INFO_SETTINGS", netColor)
+            new Setting("Wi-Fi & Networks", "Manage Wi-Fi connections", "🌐", netColor, "WIFI_SETTINGS"),
+            new Setting("Mobile Hotspot", "Share network via tethering", "🛜", netColor, "TETHER_SETTINGS", "WIRELESS_SETTINGS"),
+            
+            // SMART MOBILE DATA: Tries 4 different intents sequentially to ensure it opens on ANY brand (Samsung, Pixel, Vivo, etc.)
+            new Setting("Mobile Data", "Data usage and toggle", "📶", netColor, 
+                "DATA_USAGE_SETTINGS", "NETWORK_OPERATOR_SETTINGS", "DATA_ROAMING_SETTINGS", "WIRELESS_SETTINGS"),
+            
+            new Setting("Connected devices", "Bluetooth, pairing", "🔵", devColor, "BLUETOOTH_SETTINGS"),
+            
+            // SUB-DISPLAY SETTINGS (as you requested from the images)
+            new Setting("Dark / Light Mode", "Change system theme", "🌗", sysColor, "DISPLAY_SETTINGS"),
+            new Setting("Brightness", "Adjust screen brightness", "☀️", sysColor, "DISPLAY_SETTINGS"),
+            new Setting("Screen Timeout", "Change auto-lock time", "⏱️", sysColor, "DISPLAY_SETTINGS"),
+            new Setting("Touch Protection", "Prevent accidental touches", "🛡️", sysColor, "DISPLAY_SETTINGS"),
+            
+            new Setting("Notifications", "Notification history, alerts", "🔔", notifColor, "ALL_APPS_NOTIFICATION_SETTINGS", "NOTIFICATION_SETTINGS"),
+            new Setting("Sound & vibration", "Volume and haptics", "🔊", notifColor, "SOUND_SETTINGS"),
+            new Setting("Battery", "Power saver and usage", "🔋", devColor, "BATTERY_SAVER_SETTINGS", "SETTINGS"),
+            new Setting("Security & Privacy", "Biometrics and screen lock", "🔒", sysColor, "SECURITY_SETTINGS"),
+            new Setting("System Updates", "Check for OS patches", "🔄", netColor, "SYSTEM_UPDATE_SETTINGS", "DEVICE_INFO_SETTINGS")
         };
 
         LinearLayout listContainer = findViewById(R.id.list_container);
@@ -204,7 +216,7 @@ public class MainActivity extends Activity {
             textBlock.addView(desc);
             
             row.addView(textBlock);
-            row.setOnClickListener(v -> openSetting(s.primary, s.fallback));
+            row.setOnClickListener(v -> openSetting(s.intentActions));
             listContainer.addView(row);
         }
     }
@@ -230,24 +242,22 @@ public class MainActivity extends Activity {
         });
     }
 
-    // --- CRITICAL FIX FOR MDM BOUNCE ---
-    // Removed FLAG_ACTIVITY_NEW_TASK so MDM retains task stack ownership
-    private void openSetting(String primary, String fallback) {
-        try {
-            Intent intent = new Intent("android.settings." + primary);
-            
-            if (intent.resolveActivity(getPackageManager()) != null) {
-                startActivity(intent);
-                return;
-            }
-            if (!fallback.isEmpty()) {
-                Intent fallbackIntent = new Intent("android.settings." + fallback);
-                if (fallbackIntent.resolveActivity(getPackageManager()) != null) {
-                    startActivity(fallbackIntent);
+    // UPGRADED ENGINE: Loops through all possible intents until one works
+    private void openSetting(String[] intentActions) {
+        for (String action : intentActions) {
+            try {
+                Intent intent = new Intent("android.settings." + action);
+                
+                // MDM Fix: NO FLAG_ACTIVITY_NEW_TASK so it doesn't bounce back
+                if (intent.resolveActivity(getPackageManager()) != null) {
+                    startActivity(intent);
+                    return; // Successfully opened, stop searching
                 }
+            } catch (Exception e) { 
+                e.printStackTrace(); 
             }
-        } catch (Exception e) { 
-            e.printStackTrace(); 
         }
+        // If NO intent worked on this specific phone
+        Toast.makeText(this, "Setting not found on this device", Toast.LENGTH_SHORT).show();
     }
 }
