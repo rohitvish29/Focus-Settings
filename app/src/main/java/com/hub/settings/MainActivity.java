@@ -150,20 +150,20 @@ public class MainActivity extends Activity {
             new Setting("Wi-Fi & Networks", "Manage Wi-Fi connections", "🌐", netColor, "WIFI_SETTINGS"),
             new Setting("Mobile Hotspot", "Share network via tethering", "🛜", netColor, "TETHER_SETTINGS", "WIRELESS_SETTINGS"),
             
-            new Setting("Mobile Data", "Data usage and toggle", "📶", netColor, 
-                "DATA_USAGE_SETTINGS", "NETWORK_OPERATOR_SETTINGS", "DATA_ROAMING_SETTINGS", "WIRELESS_SETTINGS"),
+            // --- EXPANDED DATA SETTINGS WITH MULTIPLE INTENT FALLBACKS ---
+            new Setting("Mobile Data", "Turn mobile data on/off", "📶", netColor, 
+                "DATA_ROAMING_SETTINGS", "NETWORK_OPERATOR_SETTINGS", "DATA_USAGE_SETTINGS", "WIRELESS_SETTINGS"),
+            new Setting("Data Usage", "View data activity and limits", "📊", netColor, 
+                "DATA_USAGE_SETTINGS", "IGNORE_BACKGROUND_DATA_RESTRICTIONS_SETTINGS", "WIRELESS_SETTINGS"),
+            new Setting("Mobile Network", "Carrier and SIM settings", "📡", netColor, 
+                "NETWORK_OPERATOR_SETTINGS", "DATA_ROAMING_SETTINGS", "WIRELESS_SETTINGS", "DATA_USAGE_SETTINGS"),
+            // -------------------------------------------------------------
             
             new Setting("Connected devices", "Bluetooth, pairing", "🔵", devColor, "BLUETOOTH_SETTINGS"),
             
-            // --- NEW FRAGMENTED DISPLAY SETTINGS ---
-            // Tries direct shortcut first, if not found, falls back to main DISPLAY_SETTINGS
-            new Setting("Dark & Light Mode", "Change system theme", "🌗", sysColor, "DARK_THEME_SETTINGS", "DISPLAY_SETTINGS"),
-            new Setting("Brightness", "Screen brightness & adaptive", "☀️", sysColor, "DISPLAY_SETTINGS"),
-            new Setting("Eye Comfort Shield", "Blue light filter", "👁️", sysColor, "NIGHT_DISPLAY_SETTINGS", "DISPLAY_SETTINGS"),
-            new Setting("Font Size & Style", "Adjust text appearance", "🔤", sysColor, "TEXT_READING_SETTINGS", "DISPLAY_SETTINGS"),
-            new Setting("Screen Zoom", "Adjust display scaling", "🔍", sysColor, "DISPLAY_SETTINGS"),
-            new Setting("System Navigation", "Gestures or 3-buttons", "👆", sysColor, "SYSTEM_NAVIGATION_SETTINGS", "DISPLAY_SETTINGS"),
-            // ---------------------------------------
+            // --- REVERTED DISPLAY SETTING ---
+            new Setting("Display", "Brightness, dark theme, timeout", "☀️", sysColor, "DISPLAY_SETTINGS"),
+            // --------------------------------
             
             new Setting("Notifications", "Notification history, alerts", "🔔", notifColor, "ALL_APPS_NOTIFICATION_SETTINGS", "NOTIFICATION_SETTINGS"),
             new Setting("Sound & vibration", "Volume and haptics", "🔊", notifColor, "SOUND_SETTINGS"),
