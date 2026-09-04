@@ -27,7 +27,6 @@ public class MainActivity extends Activity {
     private SharedPreferences prefs;
     private boolean isDark;
 
-    // UPGRADED: Ab yeh kitne bhi intents (fallbacks) ek sath le sakta hai
     static class Setting {
         String title, desc, icon, colorHex;
         String[] intentActions;
@@ -37,7 +36,7 @@ public class MainActivity extends Activity {
             this.desc = d; 
             this.icon = i; 
             this.colorHex = c;
-            this.intentActions = actions; // Array of multiple intents
+            this.intentActions = actions; 
         }
     }
 
@@ -136,7 +135,6 @@ public class MainActivity extends Activity {
             }
         });
 
-        // Use array format for Auto Rotate
         findViewById(R.id.tile_rotate).setOnClickListener(v -> 
             openSetting(new String[]{"AUTO_ROTATE_SETTINGS", "DISPLAY_SETTINGS"})
         );
@@ -152,17 +150,20 @@ public class MainActivity extends Activity {
             new Setting("Wi-Fi & Networks", "Manage Wi-Fi connections", "🌐", netColor, "WIFI_SETTINGS"),
             new Setting("Mobile Hotspot", "Share network via tethering", "🛜", netColor, "TETHER_SETTINGS", "WIRELESS_SETTINGS"),
             
-            // SMART MOBILE DATA: Tries 4 different intents sequentially to ensure it opens on ANY brand (Samsung, Pixel, Vivo, etc.)
             new Setting("Mobile Data", "Data usage and toggle", "📶", netColor, 
                 "DATA_USAGE_SETTINGS", "NETWORK_OPERATOR_SETTINGS", "DATA_ROAMING_SETTINGS", "WIRELESS_SETTINGS"),
             
             new Setting("Connected devices", "Bluetooth, pairing", "🔵", devColor, "BLUETOOTH_SETTINGS"),
             
-            // SUB-DISPLAY SETTINGS (as you requested from the images)
-            new Setting("Dark / Light Mode", "Change system theme", "🌗", sysColor, "DISPLAY_SETTINGS"),
-            new Setting("Brightness", "Adjust screen brightness", "☀️", sysColor, "DISPLAY_SETTINGS"),
-            new Setting("Screen Timeout", "Change auto-lock time", "⏱️", sysColor, "DISPLAY_SETTINGS"),
-            new Setting("Touch Protection", "Prevent accidental touches", "🛡️", sysColor, "DISPLAY_SETTINGS"),
+            // --- NEW FRAGMENTED DISPLAY SETTINGS ---
+            // Tries direct shortcut first, if not found, falls back to main DISPLAY_SETTINGS
+            new Setting("Dark & Light Mode", "Change system theme", "🌗", sysColor, "DARK_THEME_SETTINGS", "DISPLAY_SETTINGS"),
+            new Setting("Brightness", "Screen brightness & adaptive", "☀️", sysColor, "DISPLAY_SETTINGS"),
+            new Setting("Eye Comfort Shield", "Blue light filter", "👁️", sysColor, "NIGHT_DISPLAY_SETTINGS", "DISPLAY_SETTINGS"),
+            new Setting("Font Size & Style", "Adjust text appearance", "🔤", sysColor, "TEXT_READING_SETTINGS", "DISPLAY_SETTINGS"),
+            new Setting("Screen Zoom", "Adjust display scaling", "🔍", sysColor, "DISPLAY_SETTINGS"),
+            new Setting("System Navigation", "Gestures or 3-buttons", "👆", sysColor, "SYSTEM_NAVIGATION_SETTINGS", "DISPLAY_SETTINGS"),
+            // ---------------------------------------
             
             new Setting("Notifications", "Notification history, alerts", "🔔", notifColor, "ALL_APPS_NOTIFICATION_SETTINGS", "NOTIFICATION_SETTINGS"),
             new Setting("Sound & vibration", "Volume and haptics", "🔊", notifColor, "SOUND_SETTINGS"),
@@ -242,22 +243,19 @@ public class MainActivity extends Activity {
         });
     }
 
-    // UPGRADED ENGINE: Loops through all possible intents until one works
     private void openSetting(String[] intentActions) {
         for (String action : intentActions) {
             try {
                 Intent intent = new Intent("android.settings." + action);
                 
-                // MDM Fix: NO FLAG_ACTIVITY_NEW_TASK so it doesn't bounce back
                 if (intent.resolveActivity(getPackageManager()) != null) {
                     startActivity(intent);
-                    return; // Successfully opened, stop searching
+                    return; 
                 }
             } catch (Exception e) { 
                 e.printStackTrace(); 
             }
         }
-        // If NO intent worked on this specific phone
-        Toast.makeText(this, "Setting not found on this device", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, "Setting not available directly on this device", Toast.LENGTH_SHORT).show();
     }
 }
