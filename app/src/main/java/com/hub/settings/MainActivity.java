@@ -157,13 +157,12 @@ public class MainActivity extends Activity {
             new Setting("Wi-Fi & Networks", "Manage Wi-Fi connections", "🌐", netColor, "INTENT", "WIFI_SETTINGS"),
             new Setting("Mobile Hotspot", "Share network via tethering", "🛜", netColor, "INTENT", "TETHER_SETTINGS"),
             
-            // --- Mobile Data and individual network settings ---
+            // --- Mobile Data and individual network settings (Wireless Settings removed) ---
             new Setting("Mobile Data", "Turn mobile data on/off", "📶", netColor, "INTENT", 
                 "DATA_ROAMING_SETTINGS", "NETWORK_OPERATOR_SETTINGS", "DATA_USAGE_SETTINGS", "WIRELESS_SETTINGS"),
             new Setting("Data Usage", "View data activity and limits", "📊", netColor, "INTENT", "DATA_USAGE_SETTINGS"),
             new Setting("Data Roaming", "Manage roaming networks", "🌍", netColor, "INTENT", "DATA_ROAMING_SETTINGS"),
             new Setting("Network Operator", "Select network provider", "📡", netColor, "INTENT", "NETWORK_OPERATOR_SETTINGS"),
-            new Setting("Wireless Settings", "Advanced wireless options", "📶", netColor, "INTENT", "WIRELESS_SETTINGS"),
             
             new Setting("Connected devices", "Bluetooth, pairing", "🔵", devColor, "INTENT", "BLUETOOTH_SETTINGS"),
             
