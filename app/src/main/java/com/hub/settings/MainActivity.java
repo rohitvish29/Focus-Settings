@@ -157,7 +157,7 @@ public class MainActivity extends Activity {
             new Setting("Wi-Fi & Networks", "Manage Wi-Fi connections", "🌐", netColor, "INTENT", "WIFI_SETTINGS"),
             new Setting("Mobile Hotspot", "Share network via tethering", "🛜", netColor, "INTENT", "TETHER_SETTINGS"),
             
-            // --- Mobile Data and individual network settings (Wireless Settings removed) ---
+            // --- Mobile Data and individual network settings ---
             new Setting("Mobile Data", "Turn mobile data on/off", "📶", netColor, "INTENT", 
                 "DATA_ROAMING_SETTINGS", "NETWORK_OPERATOR_SETTINGS", "DATA_USAGE_SETTINGS", "WIRELESS_SETTINGS"),
             new Setting("Data Usage", "View data activity and limits", "📊", netColor, "INTENT", "DATA_USAGE_SETTINGS"),
@@ -175,7 +175,8 @@ public class MainActivity extends Activity {
             new Setting("Adaptive Brightness", "Turn auto brightness ON/OFF", "🌤️", sysColor, "ADAPTIVE"),
             new Setting("Screen Timeout", "Change auto-lock time", "⏱️", sysColor, "TIMEOUT"),
             
-            // --- SAFE DISPLAY INTENTS ---
+            // --- SAFE DISPLAY / ACCESSIBILITY INTENTS ---
+            new Setting("Grayscale & Colors", "Color correction and accessibility", "🎨", sysColor, "INTENT", "ACCESSIBILITY_SETTINGS"),
             new Setting("Eye Comfort Shield", "Blue light filter", "👁️", sysColor, "INTENT", "NIGHT_DISPLAY_SETTINGS"),
             new Setting("Font Size & Style", "Adjust text appearance", "🔤", sysColor, "INTENT", "TEXT_READING_SETTINGS"),
             
